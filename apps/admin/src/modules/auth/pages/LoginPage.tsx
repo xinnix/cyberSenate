@@ -55,6 +55,25 @@ export const LoginPage = () => {
                 </Button>
               </Form.Item>
             </Form>
+            <div
+              style={{
+                marginTop: 8,
+                padding: '10px 12px',
+                background: '#f6f8fa',
+                borderRadius: 6,
+                fontSize: 13,
+                color: '#8c8c8c',
+                lineHeight: 1.8,
+              }}
+            >
+              <div style={{ fontWeight: 500, color: '#595959', marginBottom: 2 }}>开发测试账号</div>
+              <div>
+                账号：<code style={{ color: '#1890ff' }}>superadmin@example.com</code>
+              </div>
+              <div>
+                密码：<code style={{ color: '#1890ff' }}>password123</code>
+              </div>
+            </div>
           </Card>
         </div>
       </div>

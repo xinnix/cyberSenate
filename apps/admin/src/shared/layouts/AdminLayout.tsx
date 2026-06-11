@@ -13,6 +13,8 @@ import {
   WechatOutlined,
   MessageOutlined,
   ThunderboltOutlined,
+  CommentOutlined,
+  TeamOutlined,
 } from '@ant-design/icons';
 import { useState, useMemo } from 'react';
 import { useAuth } from '../auth';
@@ -31,17 +33,21 @@ const iconMap: Record<string, React.ReactNode> = {
   WechatOutlined: <WechatOutlined />,
   MessageOutlined: <MessageOutlined />,
   ThunderboltOutlined: <ThunderboltOutlined />,
+  CommentOutlined: <CommentOutlined />,
+  TeamOutlined: <TeamOutlined />,
 };
 
 // prettier-ignore
 const menuConfig = [
   {
-    key: "ai",
-    label: "AI 助手",
-    icon: "RobotOutlined",
+    key: "business",
+    label: "赛博圆桌",
+    icon: "CommentOutlined",
     permission: null,
     children: [
-      { key: "/agents", label: "Agent 管理", icon: "RobotOutlined", permission: "menu:agents" },
+      { key: "/characters", label: "先哲角色", icon: "UserOutlined", permission: "menu:characters" },
+      { key: "/debates/court", label: "随机圆桌", icon: "ThunderboltOutlined", permission: "menu:debates" },
+      { key: "/debates/consultation", label: "自定义圆桌", icon: "TeamOutlined", permission: "menu:debates" },
     ],
   },
   {
@@ -52,17 +58,8 @@ const menuConfig = [
     children: [
       { key: "/admins", label: "管理员管理", icon: "SafetyCertificateOutlined", permission: "menu:admins" },
       { key: "/roles", label: "角色管理", icon: "SafetyCertificateOutlined", permission: "menu:roles" },
-    ],
-  },
-  {
-    key: "wecom",
-    label: "企业微信",
-    icon: "WechatOutlined",
-    permission: null,
-    children: [
-      { key: "/wecom", label: "应用配置", icon: "SettingOutlined", permission: "menu:wecom" },
-      { key: "/wecom/messages", label: "消息记录", icon: "MessageOutlined", permission: "menu:wecom" },
-      { key: "/wecom/events", label: "事件记录", icon: "ThunderboltOutlined", permission: "menu:wecom" },
+      { key: "/agents", label: "Agent 管理", icon: "RobotOutlined", permission: "menu:agents" },
+      { key: "/wecom", label: "企业微信", icon: "WechatOutlined", permission: "menu:wecom" },
     ],
   },
 ];
@@ -90,7 +87,8 @@ export function AdminLayout() {
 
   const filterMenuByPermission = (items: any[]): any[] => {
     const hasSuperAdminRole =
-      user?.roles?.some((r: any) => r?.role?.slug === 'super_admin') || false;
+      user?.roles?.some((r: any) => r?.role?.slug === 'super_admin' || r?.slug === 'super_admin') ||
+      false;
     if (hasSuperAdminRole) return items;
 
     return items
