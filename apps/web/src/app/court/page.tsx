@@ -364,12 +364,10 @@ export default function RoundTablePage() {
       {/* 头部 */}
       <div className="px-5 pt-6 pb-3 border-b border-ink-400/8">
         <div className="flex items-center gap-2">
-          <span className="text-lg opacity-75">🎭</span>
-          <h2 className="font-serif text-sm font-bold text-gold-700 tracking-[3px]">贤者谱</h2>
+          <span className="text-lg opacity-75">👥</span>
+          <h2 className="font-serif text-sm font-bold text-gold-700 tracking-[3px]">群贤谱</h2>
         </div>
-        <p className="mt-1 font-mono text-[9px] text-ink-400/25 tracking-[2px]">
-          SAGES OF THE COURT
-        </p>
+        <p className="mt-1 font-mono text-[9px] text-ink-400/25 tracking-[2px]">COURT OF SAGES</p>
       </div>
 
       {/* 列表 */}
@@ -669,6 +667,16 @@ export default function RoundTablePage() {
         <aside className="hidden xl:block w-[300px] lg:w-[340px] shrink-0 border-l border-ink-400/10 overflow-y-overflow overflow-y-auto h-[calc(100vh-56px)] sticky top-[56px] scrollbar-fade">
           {rightSidebarContent}
         </aside>
+      </div>
+
+      {/* ──── 底部版权 ──── */}
+      <div className="border-t border-ink-400/8 px-4 py-3 text-center">
+        <div className="font-mono text-[10px] text-ink-400/25 tracking-[2px]">
+          赛博圆桌 · Cyber Senate
+        </div>
+        <div className="mt-0.5 font-mono text-[8px] text-ink-400/15 tracking-[1px]">
+          v1.0.0 &copy; {new Date().getFullYear()} 赛博圆桌
+        </div>
       </div>
 
       {/* 底部音频播放器 */}
