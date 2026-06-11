@@ -17,7 +17,12 @@ export function Navbar() {
       <div className="max-w-[1400px] mx-auto px-4 h-14 flex items-center justify-between">
         {/* Brand */}
         <Link href="/court" className="flex items-center gap-2 group">
-          <span className="text-xl opacity-80">🏛️</span>
+          {/* TODO: 替换为实际 Logo 图片 — 将 logo 文件放入 apps/web/public/logo.png */}
+          <img
+            src="/logo.png"
+            alt="赛博圆桌"
+            className="h-7 w-auto opacity-80 group-hover:opacity-100 transition-opacity"
+          />
           <span className="font-serif text-base font-bold text-ink-900 tracking-[3px] group-hover:text-gold-700 transition">
             赛博圆桌
           </span>

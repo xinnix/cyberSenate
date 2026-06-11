@@ -3,12 +3,12 @@ import { inter } from '@/lib/fonts';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'OpenCode — 全栈 SaaS 脚手架',
+  title: '赛博圆桌 — 一个问题，万智共鸣',
   description:
-    '开箱即用的全栈管理系统脚手架。NestJS + React + tRPC + Prisma，内置 Auth、RBAC、支付、Admin，数天即可上线。',
+    '溯千载智慧之流，解今朝现世之围。每日一场 AI 辩论，先哲跨时空对话，为你的困惑提供深度洞见。',
   openGraph: {
-    title: 'OpenCode — 全栈 SaaS 脚手架',
-    description: '开箱即用的全栈管理系统脚手架，数天即可上线。',
+    title: '赛博圆桌 — Cyber Senate',
+    description: '溯千载智慧之流，解今朝现世之围。每日一场 AI 辩论，先哲跨时空对话。',
     type: 'website',
   },
 };

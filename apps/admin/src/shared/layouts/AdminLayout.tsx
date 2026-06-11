@@ -177,9 +177,10 @@ export function AdminLayout() {
             <img src="../logo.png" alt="" width={36} height={36} />
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              {/* TODO: 替换为实际 Logo 图片 — 将 logo 文件放入 apps/admin/public/logo.png */}
               <img src="../logo.png" alt="" width={36} height={36} />
               <div style={{ color: '#fff', fontWeight: 600, fontSize: 16, whiteSpace: 'nowrap' }}>
-                OpenCode
+                赛博圆桌
               </div>
             </div>
           )}
