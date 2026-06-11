@@ -30,6 +30,8 @@ model Admin {
   roles         AdminRole[]
   agentCreatedBy Agent[] @relation("AgentCreatedBy")
   agentUpdatedBy Agent[] @relation("AgentUpdatedBy")
+  characterCreatedBy Character[] @relation("CharacterCreatedBy")
+  characterUpdatedBy Character[] @relation("CharacterUpdatedBy")
   wecomConfigCreatedBy WecomConfig[] @relation("WecomConfigCreatedBy")
   wecomConfigUpdatedBy WecomConfig[] @relation("WecomConfigUpdatedBy")
 
@@ -64,6 +66,7 @@ model User {
 
   // 关联
   refreshTokens UserRefreshToken[]
+  debates       Debate[]
 
   @@index([openid])
   @@index([email])
@@ -293,5 +296,145 @@ model WecomEvent {
   @@index([eventType])
   @@index([createdAt])
   @@map("wecom_events")
+}
+
+// ============================================
+// 辩论类型枚举
+// ============================================
+enum DebateType {
+  COURT         // 朝议台（免费/自动）
+  CONSULTATION  // 问策局（用户提交/付费）
+}
+
+// ============================================
+// 辩论状态枚举
+// ============================================
+enum DebateStatus {
+  PENDING    // 待生成
+  GENERATING // AI生成中
+  CONCLUDED  // 已结案
+  FAILED     // 生成失败
+}
+
+// ============================================
+// 角色/先哲模型（7维度定义）
+// ============================================
+model Character {
+  id            String   @id @default(cuid())
+  name          String
+  slug          String   @unique
+  era           String                          // 时代/背景
+  mbti          String                          // 人格类型
+  coreStance    String                          // 核心立场（一句话世界观）
+  speakingStyle String                          // 说话风格
+  expertise     String                          // 知识领域
+  systemPrompt  String   @db.Text               // 系统提示词（完整 prompt）
+  avatar        String?                         // 头像 URL
+  isPreset      Boolean  @default(false)        // 是否预制角色
+  isActive      Boolean  @default(true)
+  sort          Int      @default(0)
+  createdById   String?
+  updatedById   String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  createdBy Admin?  @relation("CharacterCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy Admin?  @relation("CharacterUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  debates    DebateCharacter[]
+
+  @@index([slug])
+  @@index([isActive])
+  @@map("characters")
+}
+
+// ============================================
+// 辩论会话模型
+// ============================================
+model Debate {
+  id         String       @id @default(cuid())
+  type       DebateType                       // 朝议台 or 问策局
+  topic      String                           // 辩论议题
+  status     DebateStatus @default(PENDING)
+  rounds     Json?                            // 三轮辩论内容（JSON array）
+  conclusion Json?                            // 结案锦囊（JSON object）
+  userId     String?                          // 朝议台无用户，问策局有用户
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  user       User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  characters DebateCharacter[]
+  audioTracks DebateAudio[]
+
+  audioStatus String? // "pending" | "generating" | "ready" | "failed"
+
+  // 全局主持人开场/结语（替代每轮主持人）
+  moderatorOpening    Json?    // { content: string } 全局开场
+  moderatorClosing    Json?    // { content: string } 全局结语
+
+  // 合并音频
+  mergedAudioUrl      String?  // 合并后完整 MP3 的 OSS URL
+  mergedAudioDuration Float?   // 合并音频总时长（秒）
+  chapterMetadata     Json?    // [{ offset, type, speaker, roundNumber?, characterId? }]
+
+  @@index([type])
+  @@index([status])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("debates")
+}
+
+// ============================================
+// 辩论音频状态枚举
+// ============================================
+enum AudioStatus {
+  PENDING    // 待生成
+  GENERATING // 生成中
+  READY      // 已就绪
+  FAILED     // 生成失败
+}
+
+// ============================================
+// 辩论-角色关联
+// ============================================
+model DebateCharacter {
+  id          String @id @default(cuid())
+  debateId    String
+  characterId String
+  role        String? // 在本局中的角色: attacker/defender/deconstructor
+
+  debate    Debate    @relation(fields: [debateId], references: [id], onDelete: Cascade)
+  character Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@unique([debateId, characterId])
+  @@index([debateId])
+  @@index([characterId])
+  @@map("debate_characters")
+}
+
+// ============================================
+// 辩论音频轨道模型
+// ============================================
+model DebateAudio {
+  id            String      @id @default(cuid())
+  debateId      String
+  roundNumber   Int                            // 轮次 1-3（conclusion 为 0）
+  segmentType   String                         // "moderator_opening" | "speech" | "moderator_summary" | "conclusion"
+  characterId   String?                        // null = 主持人段落
+  characterName String?                        // 冗余存储，加速查询
+  voiceId       String                         // 使用的 TTS 语音标识
+  audioUrl      String?                        // OSS URL
+  audioDuration Float?                         // 时长（秒）
+  textContent   String      @db.Text          // 合成的原文
+  status        AudioStatus @default(PENDING)
+  sortOrder     Int                            // 播放顺序
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  debate Debate @relation(fields: [debateId], references: [id], onDelete: Cascade)
+
+  @@index([debateId])
+  @@index([debateId, roundNumber, sortOrder])
+  @@index([status])
+  @@map("debate_audios")
 }
 

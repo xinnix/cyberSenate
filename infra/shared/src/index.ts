@@ -85,6 +85,7 @@ export const PERMISSIONS = {
     ROLES: 'menu:roles',
     AGENTS: 'menu:agents',
     WECOM: 'menu:wecom',
+    CHARACTERS: 'menu:characters',
   },
   USER: {
     CREATE: 'user:create',
@@ -110,6 +111,18 @@ export const PERMISSIONS = {
     READ: 'agent:read',
     UPDATE: 'agent:update',
     DELETE: 'agent:delete',
+  },
+  CHARACTER: {
+    CREATE: 'character:create',
+    READ: 'character:read',
+    UPDATE: 'character:update',
+    DELETE: 'character:delete',
+  },
+  DEBATE: {
+    CREATE: 'debate:create',
+    READ: 'debate:read',
+    UPDATE: 'debate:update',
+    DELETE: 'debate:delete',
   },
 } as const;
 
@@ -374,3 +387,63 @@ export type UpdateWecomConfigInput = z.infer<typeof UpdateWecomConfigSchema>;
 export type SendMessageInput = z.infer<typeof SendMessageSchema>;
 export type SendKfMessageInput = z.infer<typeof SendKfMessageSchema>;
 export type SyncKfMessageInput = z.infer<typeof SyncKfMessageSchema>;
+
+// ============================================
+// Character (角色/先哲) Schemas
+// ============================================
+
+export const CreateCharacterSchema = z.object({
+  name: z.string().min(1, '角色名不能为空'),
+  slug: z.string().min(1, '标识不能为空'),
+  era: z.string().min(1, '时代/背景不能为空'),
+  mbti: z.string().min(1, 'MBTI不能为空'),
+  coreStance: z.string().min(1, '核心立场不能为空'),
+  speakingStyle: z.string().min(1, '说话风格不能为空'),
+  expertise: z.string().min(1, '知识领域不能为空'),
+  systemPrompt: z.string().min(1, '系统提示词不能为空'),
+  avatar: z.string().optional(),
+  isPreset: z.boolean().optional().default(false),
+  isActive: z.boolean().optional().default(true),
+  sort: z.number().int().optional().default(0),
+});
+
+export const UpdateCharacterSchema = z.object({
+  name: z.string().min(1).optional(),
+  slug: z.string().min(1).optional(),
+  era: z.string().min(1).optional(),
+  mbti: z.string().min(1).optional(),
+  coreStance: z.string().min(1).optional(),
+  speakingStyle: z.string().min(1).optional(),
+  expertise: z.string().min(1).optional(),
+  systemPrompt: z.string().min(1).optional(),
+  avatar: z.string().nullable().optional(),
+  isPreset: z.boolean().optional(),
+  isActive: z.boolean().optional(),
+  sort: z.number().int().optional(),
+});
+
+export type CreateCharacterInput = z.infer<typeof CreateCharacterSchema>;
+export type UpdateCharacterInput = z.infer<typeof UpdateCharacterSchema>;
+
+// ============================================
+// Debate (辩论会话) Schemas
+// ============================================
+
+export const DebateTypeEnum = z.enum(['COURT', 'CONSULTATION']);
+export const DebateStatusEnum = z.enum(['PENDING', 'GENERATING', 'CONCLUDED', 'FAILED']);
+
+export const CreateDebateSchema = z.object({
+  type: DebateTypeEnum,
+  topic: z.string().min(1, '辩论议题不能为空'),
+  characterIds: z.array(z.string()).min(2, '至少选择2位角色').max(5, '最多5位角色'),
+});
+
+export const DebateListQuerySchema = z.object({
+  page: z.number().int().positive().optional(),
+  pageSize: z.number().int().positive().optional(),
+  type: DebateTypeEnum.optional(),
+  status: DebateStatusEnum.optional(),
+});
+
+export type CreateDebateInput = z.infer<typeof CreateDebateSchema>;
+export type DebateListQueryInput = z.infer<typeof DebateListQuerySchema>;
