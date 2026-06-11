@@ -14,19 +14,19 @@ export function Navbar() {
 
   return (
     <nav className="w-full border-b border-ink-400/8 bg-parchment-200/80 backdrop-blur-sm sticky top-0 z-40">
-      <div className="max-w-[1400px] mx-auto px-4 h-14 flex items-center justify-between">
+      <div className="max-w-[1400px] mx-auto px-4 h-16 flex items-center justify-between">
         {/* Brand */}
-        <Link href="/court" className="flex items-center gap-2 group">
+        <Link href="/court" className="flex items-center gap-3 group">
           {/* TODO: 替换为实际 Logo 图片 — 将 logo 文件放入 apps/web/public/logo.png */}
           <img
             src="/logo.png"
             alt="赛博圆桌"
-            className="h-7 w-auto opacity-80 group-hover:opacity-100 transition-opacity"
+            className="h-8 w-auto opacity-80 group-hover:opacity-100 transition-opacity"
           />
-          <span className="font-serif text-base font-bold text-ink-900 tracking-[3px] group-hover:text-gold-700 transition">
+          <span className="font-serif text-lg font-bold text-ink-900 tracking-[3px] group-hover:text-gold-700 transition">
             赛博圆桌
           </span>
-          <span className="hidden sm:inline font-serif text-[11px] text-ink-400/30 tracking-[3px] ml-1 leading-none">
+          <span className="hidden sm:inline font-serif text-sm text-ink-400/50 tracking-[3px] ml-0.5 leading-none">
             一个问题 · 万智共鸣
           </span>
         </Link>
@@ -36,7 +36,7 @@ export function Navbar() {
           {NAV_ITEMS.map((item) => {
             const isActive = pathname?.startsWith(item.href);
             const baseClass =
-              'relative px-4 py-2 text-[15px] font-serif tracking-wider transition rounded-md';
+              'relative px-4 py-2 text-base font-serif tracking-wider transition rounded-md';
             const activeClass = 'text-gold-700 font-medium';
             const inactiveClass = 'text-ink-400/40 hover:text-ink-400/60';
 
