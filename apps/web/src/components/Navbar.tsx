@@ -26,6 +26,9 @@ export function Navbar() {
           <span className="font-serif text-base font-bold text-ink-900 tracking-[3px] group-hover:text-gold-700 transition">
             赛博圆桌
           </span>
+          <span className="hidden sm:inline font-serif text-[11px] text-ink-400/30 tracking-[3px] ml-1 leading-none">
+            一个问题 · 万智共鸣
+          </span>
         </Link>
 
         {/* Nav Tabs */}
