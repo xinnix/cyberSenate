@@ -636,14 +636,6 @@ export default function RoundTablePage() {
                   </div>
                 )}
 
-                {showConclusion && detail.conclusion && (
-                  <SenateDecreeModal
-                    conclusion={detail.conclusion}
-                    debateId={detail.id}
-                    onClose={() => setShowConclusion(false)}
-                  />
-                )}
-
                 {/* 落幕 */}
                 <div className="mt-8 pt-5 border-t border-ink-400/10 text-center">
                   <div className="font-serif text-sm text-ink-400/30 tracking-[6px]">
@@ -668,6 +660,15 @@ export default function RoundTablePage() {
           {rightSidebarContent}
         </aside>
       </div>
+
+      {/* ──── 朝议法卷弹窗（页面根层级，覆盖三栏） ──── */}
+      {showConclusion && detail?.conclusion && (
+        <SenateDecreeModal
+          conclusion={detail.conclusion}
+          debateId={detail.id}
+          onClose={() => setShowConclusion(false)}
+        />
+      )}
 
       {/* ──── 底部版权 ──── */}
       <div className="border-t border-ink-400/8 px-4 py-3 text-center">
