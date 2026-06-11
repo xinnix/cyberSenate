@@ -144,7 +144,7 @@ export class ProductService extends BaseService<Product> {
 ## Seed 数据
 
 ```bash
-docker exec -i postgres psql -U xinnix -d couponHub < infra/database/prisma/seed-base.sql
+docker exec -i postgres psql -U  -d  < infra/database/prisma/seed-base.sql
 ```
 
 测试账号：
@@ -235,3 +235,8 @@ docker exec -i postgres psql -U xinnix -d couponHub < infra/database/prisma/seed
 - StandardListPage and generated list pages have duplicated mutation callback patterns
 - tRPC context (`verifyJwtToken`) only resolves Admin users — Web/Miniapp users must use REST endpoints
 - `@opencode/shared` `User` interface lacks `nickname`/`phone` fields that exist in Prisma `users` model
+
+## 核心参考
+
+- docs/prd.md 产品说明书
+- docs/design-web.md web应用设计风格参考
