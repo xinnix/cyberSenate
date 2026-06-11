@@ -23,7 +23,9 @@ export class TransformInterceptor<T> implements NestInterceptor<T, Response<T>> 
 
     return next.handle().pipe(
       map((data) => {
-        // 如果返回数据包含 data 字段，提取所有字段
+        // SSE / @Res() 手动响应 — 直接透传
+        if (response.headersSent) return data;
+
         if (data?.data !== undefined) {
           return {
             success: true,
@@ -31,7 +33,6 @@ export class TransformInterceptor<T> implements NestInterceptor<T, Response<T>> 
             message: data?.message || 'Success',
             data: data.data,
             timestamp: new Date().toISOString(),
-            // 保留分页字段
             total: data.total,
             page: data.page,
             pageSize: data.pageSize,
@@ -39,12 +40,11 @@ export class TransformInterceptor<T> implements NestInterceptor<T, Response<T>> 
           };
         }
 
-        // 否则，直接包装数据
         return {
           success: true,
           statusCode: response.statusCode,
           message: 'Success',
-          data: data,
+          data,
           timestamp: new Date().toISOString(),
         };
       }),

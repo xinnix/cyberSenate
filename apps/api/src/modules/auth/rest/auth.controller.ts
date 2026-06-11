@@ -1,5 +1,14 @@
-import { Controller, Post, Body, Get, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
-import { z } from 'zod';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+  HttpException,
+} from '@nestjs/common';
+import { z, ZodError } from 'zod';
 import { AuthService } from '../services/auth.service';
 import { Public, CurrentUser } from '../decorators/decorators';
 import { JwtAuthGuard } from '../../../core/guards/jwt.guard';
@@ -14,16 +23,36 @@ export class AuthController {
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   async register(@Body() body: typeof RegisterSchema) {
-    const validatedData = RegisterSchema.parse(body);
-    return this.authService.registerUser(validatedData);
+    try {
+      const validatedData = RegisterSchema.parse(body);
+      return this.authService.registerUser(validatedData);
+    } catch (err) {
+      if (err instanceof ZodError) {
+        throw new HttpException(
+          { message: '参数验证失败', errors: err.issues },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      throw err;
+    }
   }
 
   @Public()
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(@Body() body: typeof LoginSchema) {
-    const validatedData = LoginSchema.parse(body);
-    return this.authService.loginUser(validatedData);
+    try {
+      const validatedData = LoginSchema.parse(body);
+      return this.authService.loginUser(validatedData);
+    } catch (err) {
+      if (err instanceof ZodError) {
+        throw new HttpException(
+          { message: '参数验证失败', errors: err.issues },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      throw err;
+    }
   }
 
   @Public()

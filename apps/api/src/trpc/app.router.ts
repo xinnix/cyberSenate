@@ -9,6 +9,8 @@ import { permissionRouter } from '../modules/permission/trpc/permission.router';
 import { uploadRouter } from '../modules/upload/trpc/upload.router';
 import { paymentRouter } from '../modules/payment/trpc/payment.router';
 import { agentsRouter } from '../modules/agents/trpc/agents.router';
+import { charactersRouter } from '../modules/characters/trpc/characters.router';
+import { debatesRouter } from '../modules/debates/trpc/debates.router';
 import { wecomRouter } from '../modules/wecom/trpc/wecom.router';
 
 export const appRouter = router({
@@ -20,6 +22,8 @@ export const appRouter = router({
   upload: uploadRouter,
   payment: paymentRouter,
   agents: agentsRouter,
+  characters: charactersRouter,
+  debates: debatesRouter,
   wecom: wecomRouter,
 });
 
