@@ -2,6 +2,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
+import { ScheduleModule } from '@nestjs/schedule';
 import { PrismaModule } from './prisma/prisma.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_INTERCEPTOR, APP_GUARD } from '@nestjs/core';
@@ -36,6 +37,8 @@ import { FileStorageService } from './shared/services/file-storage.service';
     ]),
     // 数据库模块（全局，必须在最前）
     PrismaModule,
+    // 定时任务
+    ScheduleModule.forRoot(),
     // 基础模块
     AuthModule,
     UserModule,

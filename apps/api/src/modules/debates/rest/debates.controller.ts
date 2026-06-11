@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { DebatesService } from '../services/debates.service';
+import { DailyCourtService } from '../services/daily-court.service';
 import { DebateAudioService } from '../services/debate-audio.service';
 import { FileStorageService } from '../../../shared/services/file-storage.service';
 import { PrismaService } from '../../../prisma/prisma.service';
@@ -21,6 +22,7 @@ import { CreateDebateSchema } from '@opencode/shared';
 export class DebatesController {
   constructor(
     private debatesService: DebatesService,
+    private dailyCourtService: DailyCourtService,
     private debateAudioService: DebateAudioService,
     private fileStorage: FileStorageService,
     private prisma: PrismaService,
@@ -279,6 +281,14 @@ export class DebatesController {
     // Fire-and-forget：后台生成
     this.debateAudioService.generateAudioForDebate(id).catch(() => {});
     return { status: 'generating', message: '音频生成已开始' };
+  }
+
+  /**
+   * GET /api/debates/daily-status — 今日朝议状态 & 倒计时
+   */
+  @Get('daily-status')
+  async dailyStatus() {
+    return this.dailyCourtService.getDailyStatus();
   }
 
   /**
