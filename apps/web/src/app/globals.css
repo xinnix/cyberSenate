@@ -37,8 +37,39 @@
   --color-error-500: #ef4444;
   --color-error-600: #dc2626;
 
+  /* 古卷风格色板 */
+  --color-parchment-50: #faf7f0;
+  --color-parchment-100: #f5f0e6;
+  --color-parchment-200: #ede6d8;
+  --color-parchment-300: #e8e2d4;
+  --color-parchment-400: #d4ccba;
+
+  --color-ink-50: #f5f4f2;
+  --color-ink-100: #e8e6e2;
+  --color-ink-200: #c9c5bc;
+  --color-ink-400: #6a6458;
+  --color-ink-600: #3a3630;
+  --color-ink-800: #2a2824;
+  --color-ink-900: #1e1c18;
+
+  --color-gold-300: #d4b85c;
+  --color-gold-400: #c4a43e;
+  --color-gold-500: #b8963a;
+  --color-gold-700: #8a6e28;
+  --color-gold-900: #5a4a20;
+
+  --color-debater-red-bg: #f0e0e0;
+  --color-debater-red-text: #aa3a3a;
+  --color-debater-blue-bg: #e4ecf0;
+  --color-debater-blue-text: #2a6a8a;
+  --color-debater-green-bg: #e4f0e8;
+  --color-debater-green-text: #3a7a4a;
+
   --font-display: 'Inter', system-ui, sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;
+  --font-serif: 'Noto Serif SC', 'Georgia', serif;
+  --font-sans-cn: 'Noto Sans SC', 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 }
 
 html {
@@ -48,4 +79,23 @@ html {
 body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* 古卷风格 — 滚动条始终不占位（overlay 模式） */
+.scrollbar-fade {
+  scrollbar-width: none;
+  overflow-y: overlay;
+}
+.scrollbar-fade::-webkit-scrollbar {
+  width: 3px;
+}
+.scrollbar-fade::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-fade::-webkit-scrollbar-thumb {
+  background: rgba(106, 100, 88, 0.08);
+  border-radius: 2px;
+}
+.scrollbar-fade::-webkit-scrollbar-thumb:hover {
+  background: rgba(106, 100, 88, 0.15);
 }
