@@ -283,6 +283,9 @@ export default function RoundTablePage() {
   );
   const charEras = Object.fromEntries(Object.entries(charMeta).map(([k, v]) => [k, v.era]));
 
+  // 当前辩论中参与的角色 ID 集合（用于右侧栏高亮）
+  const activeSageIds = new Set(detail?.characters?.map((dc) => dc.character.id) ?? []);
+
   /* ── 侧栏列表（抽离为组件，桌面 & 手机复用） ── */
 
   const sidebarContent = (
@@ -383,10 +386,15 @@ export default function RoundTablePage() {
           sages.map((sage, index) => {
             const colors = getCharacterColors(index);
             const initial = getInitial(sage.name);
+            const isActive = detail && activeSageIds.has(sage.id);
             return (
               <div
                 key={sage.id}
-                className="group bg-parchment-100/50 hover:bg-parchment-100 rounded-md px-3 py-2.5 transition-colors cursor-default border border-ink-400/5 hover:border-gold-500/15"
+                className={`group rounded-md px-3 py-2.5 transition-colors cursor-default border ${
+                  isActive
+                    ? 'bg-parchment-100 border-l-2 border-l-gold-500 border-t border-r border-b border-ink-400/10 shadow-[2px_0_0_0_rgba(212,175,55,0.3)]'
+                    : 'bg-parchment-100/50 hover:bg-parchment-100 border border-ink-400/5 hover:border-gold-500/15'
+                }`}
               >
                 {/* 头部区域 */}
                 <div className="flex items-start gap-2.5">
@@ -413,6 +421,11 @@ export default function RoundTablePage() {
                       <span className="rounded bg-parchment-300/80 px-1.5 py-0.5 text-[9px] font-mono text-ink-500/60 leading-tight">
                         {sage.era}
                       </span>
+                      {isActive && (
+                        <span className="rounded bg-gold-500/10 px-1.5 py-0.5 text-[8px] font-mono text-gold-600/70 leading-tight tracking-[1px]">
+                          参议中
+                        </span>
+                      )}
                     </div>
                     <div className="mt-0.5 flex items-center gap-2">
                       <span className="text-[10px] font-mono text-gold-600/50 tracking-[1px]">
