@@ -5,10 +5,22 @@ import { apiClient } from '@/lib/api-client';
 import { RoundSection } from '@/components/debate/RoundSection';
 import { SenateDecreeModal } from '@/components/debate/SenateDecreeModal';
 import { AudioPlayer } from '@/components/debate/AudioPlayer';
-import { ShareToolbar } from '@/components/debate/ShareToolbar';
 import { useChapterAudioPlayer, type MergedAudio } from '@/hooks/use-audio-player';
+import { getCharacterColors, getInitial } from '@/components/debate/characterColors';
 
 /* ── 类型 ─────────────────────────────────────────── */
+
+interface Sage {
+  id: string;
+  name: string;
+  slug: string;
+  era: string;
+  mbti: string;
+  coreStance: string;
+  speakingStyle: string;
+  expertise: string;
+  avatar: string | null;
+}
 
 interface DebateListItem {
   id: string;
@@ -26,9 +38,21 @@ interface DebateDetail extends DebateListItem {
   conclusion: any;
 }
 
+interface DailyStatus {
+  todayExists: boolean;
+  nextGenerationAt: string;
+  countdownSeconds: number;
+  status: string | null;
+  todayDebate: DebateDetail | null;
+}
+
 /* ── 页面 ─────────────────────────────────────────── */
 
 export default function RoundTablePage() {
+  // 每日状态 & 倒计时
+  const [dailyStatus, setDailyStatus] = useState<DailyStatus | null>(null);
+  const [countdown, setCountdown] = useState('');
+
   // 列表
   const [debates, setDebates] = useState<DebateListItem[]>([]);
   const [page, setPage] = useState(1);
@@ -53,6 +77,70 @@ export default function RoundTablePage() {
   // 音频
   const [mergedAudio, setMergedAudio] = useState<MergedAudio | null>(null);
   const player = useChapterAudioPlayer(mergedAudio);
+
+  // 智者列表（右侧栏）
+  const [sages, setSages] = useState<Sage[]>([]);
+  const [loadingSages, setLoadingSages] = useState(true);
+
+  /* ── 每日状态 & 倒计时 ─────────────────────────── */
+
+  // 获取今日状态
+  const fetchDailyStatus = useCallback(async () => {
+    try {
+      const res = await apiClient.get<DailyStatus>('/debates/daily-status');
+      const data = res?.data ?? res;
+      if (data) setDailyStatus(data);
+    } catch {
+      // 静默失败
+    }
+  }, []);
+
+  // 秒级倒计时更新
+  useEffect(() => {
+    if (!dailyStatus?.nextGenerationAt) return;
+    const next = new Date(dailyStatus.nextGenerationAt).getTime();
+
+    const tick = () => {
+      const diff = Math.max(0, Math.floor((next - Date.now()) / 1000));
+      if (diff <= 0) {
+        setCountdown('即将生成');
+        fetchDailyStatus(); // 刷新状态
+        return;
+      }
+      const h = Math.floor(diff / 3600);
+      const m = Math.floor((diff % 3600) / 60);
+      const s = diff % 60;
+      setCountdown(
+        `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`,
+      );
+    };
+
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [dailyStatus?.nextGenerationAt, fetchDailyStatus]);
+
+  // 首次获取
+  useEffect(() => {
+    fetchDailyStatus();
+  }, [fetchDailyStatus]);
+
+  // 获取智者列表
+  const fetchSages = useCallback(async () => {
+    try {
+      const res = await apiClient.get<Sage[]>('/debates/characters');
+      const data = res.data || [];
+      setSages(data);
+    } catch {
+      // 静默失败
+    } finally {
+      setLoadingSages(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchSages();
+  }, [fetchSages]);
 
   /* ── 获取列表 ──────────────────────────────────── */
 
@@ -200,7 +288,7 @@ export default function RoundTablePage() {
   const sidebarContent = (
     <>
       {/* 列表头 */}
-      <div className="sticky top-0 z-10 bg-parchment-300 px-5 pt-8 pb-4 border-b border-ink-400/8">
+      <div className="sticky top-0 z-10 bg-parchment-300 px-5 pt-6 pb-3 border-b border-ink-400/8">
         <div className="flex items-center gap-2">
           <span className="text-lg opacity-75">🏛️</span>
           <h2 className="font-serif text-sm font-bold text-gold-700 tracking-[3px]">朝议录</h2>
@@ -266,14 +354,111 @@ export default function RoundTablePage() {
     </>
   );
 
+  /* ── 右侧栏：智者列表 ─────────────────────────── */
+
+  const rightSidebarContent = (
+    <>
+      {/* 头部 */}
+      <div className="px-5 pt-6 pb-3 border-b border-ink-400/8">
+        <div className="flex items-center gap-2">
+          <span className="text-lg opacity-75">🎭</span>
+          <h2 className="font-serif text-sm font-bold text-gold-700 tracking-[3px]">贤者谱</h2>
+        </div>
+        <p className="mt-1 font-mono text-[9px] text-ink-400/25 tracking-[2px]">
+          SAGES OF THE COURT
+        </p>
+      </div>
+
+      {/* 列表 */}
+      <div className="px-3 py-3 space-y-2">
+        {loadingSages ? (
+          <div className="flex justify-center py-12">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-ink-200/30 border-t-ink-400" />
+          </div>
+        ) : sages.length === 0 ? (
+          <div className="py-12 text-center">
+            <p className="text-sm text-ink-400/30">暂无贤者</p>
+          </div>
+        ) : (
+          sages.map((sage, index) => {
+            const colors = getCharacterColors(index);
+            const initial = getInitial(sage.name);
+            return (
+              <div
+                key={sage.id}
+                className="group bg-parchment-100/50 hover:bg-parchment-100 rounded-md px-3 py-2.5 transition-colors cursor-default border border-ink-400/5 hover:border-gold-500/15"
+              >
+                {/* 头部区域 */}
+                <div className="flex items-start gap-2.5">
+                  {/* 头像 */}
+                  <div
+                    className="shrink-0 w-9 h-9 rounded-md flex items-center justify-center overflow-hidden text-sm font-bold"
+                    style={{ backgroundColor: colors.bg, color: colors.text }}
+                  >
+                    {sage.avatar ? (
+                      <img
+                        src={sage.avatar}
+                        alt={sage.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      initial
+                    )}
+                  </div>
+
+                  {/* 名称 + 徽章 */}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="font-serif text-sm font-bold text-ink-800">{sage.name}</span>
+                      <span className="rounded bg-parchment-300/80 px-1.5 py-0.5 text-[9px] font-mono text-ink-500/60 leading-tight">
+                        {sage.era}
+                      </span>
+                    </div>
+                    <div className="mt-0.5 flex items-center gap-2">
+                      <span className="text-[10px] font-mono text-gold-600/50 tracking-[1px]">
+                        {sage.mbti}
+                      </span>
+                      {sage.expertise && (
+                        <>
+                          <span className="text-[8px] text-ink-400/30">·</span>
+                          <span className="text-[10px] text-ink-500/50 truncate">
+                            {sage.expertise}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 核心立场（只有桌面 hover 展开） */}
+                {sage.coreStance && (
+                  <div className="mt-1.5 ml-[46px] text-[11px] text-ink-500/60 leading-relaxed line-clamp-2 group-hover:line-clamp-none transition-all font-serif">
+                    — {sage.coreStance}
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* 底部水印 */}
+      <div className="px-4 py-4 text-center">
+        <div className="font-mono text-[8px] text-ink-400/15 tracking-[2px]">
+          与历史先哲 · 共议天下事
+        </div>
+      </div>
+    </>
+  );
+
   /* ── 渲染 ──────────────────────────────────────── */
 
   return (
     <div className="min-h-screen bg-parchment-300 flex flex-col font-sans-cn">
-      {/* 主体：左右分栏 */}
+      {/* 主体：左中右三栏 */}
       <div className="flex-1 flex max-w-[1400px] mx-auto w-full">
         {/* ──── 左侧：朝议列表（桌面端） ──── */}
-        <aside className="hidden md:block w-[320px] lg:w-[340px] shrink-0 border-r border-ink-400/10 overflow-y-overlay overflow-y-auto h-[calc(100vh-56px)] sticky top-[56px] scrollbar-fade">
+        <aside className="hidden md:block w-[300px] lg:w-[340px] shrink-0 border-r border-ink-400/10 overflow-y-overlay overflow-y-auto h-[calc(100vh-56px)] sticky top-[56px] scrollbar-fade">
           {sidebarContent}
         </aside>
 
@@ -312,14 +497,82 @@ export default function RoundTablePage() {
             📚
           </button>
 
+          {/* ──── 顶部倒计时 ──── */}
+          <div className="border-b border-ink-400/8 px-6 py-3">
+            {dailyStatus?.todayExists ? (
+              <div className="flex items-center gap-2 text-gold-700/70">
+                <span className="text-sm">⏳</span>
+                <span className="font-mono text-[11px] tracking-[2px]">下次朝议 · {countdown}</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-ink-500">
+                <span className="text-sm">📜</span>
+                <span className="font-serif text-[11px] tracking-[1px]">
+                  今日朝议 {dailyStatus?.status === 'GENERATING' ? '生成中…' : '即将开始'}
+                </span>
+              </div>
+            )}
+            <div className="mt-1 font-mono text-[9px] text-ink-400/25 tracking-[2px]">
+              {new Date().toLocaleDateString('zh-CN', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                weekday: 'long',
+              })}
+            </div>
+          </div>
+
           {loadingDetail ? (
             <div className="flex justify-center py-24">
               <div className="h-8 w-8 animate-spin rounded-full border-4 border-ink-200/30 border-t-ink-400" />
             </div>
           ) : !detail ? (
-            <div className="flex flex-col items-center justify-center py-24 text-center">
-              <span className="text-4xl mb-4 opacity-30">📜</span>
-              <p className="text-ink-400/30 text-sm">选择左侧朝议以查看内容</p>
+            <div className="flex flex-col items-center justify-center py-24 px-6 text-center">
+              {/* Hero 区：产品价值观 */}
+              <div className="max-w-lg mx-auto mb-16">
+                <div className="font-serif text-5xl sm:text-6xl font-black text-ink-900 leading-[1.2] tracking-[3px]">
+                  一个问题
+                </div>
+                <div className="mt-3 font-serif text-xl sm:text-2xl font-bold text-gold-700 tracking-[6px]">
+                  万智共鸣
+                </div>
+                <div className="mt-8 w-12 h-px bg-ink-400/15 mx-auto" />
+                <p className="mt-8 text-[15px] text-ink-400/60 leading-relaxed tracking-[1px] font-serif">
+                  溯千载智慧之流，解今朝现世之围。
+                </p>
+                <p className="mt-2 text-[13px] text-ink-400/40 leading-relaxed tracking-[1px] font-serif">
+                  每日朝议，让苏格拉底、鲁迅、尼采共议 AI；
+                  <br />
+                  跨时空对话，为你的困惑提供深度洞见。
+                </p>
+                <div className="mt-10 flex items-center justify-center gap-6">
+                  <div className="text-center">
+                    <div className="font-serif text-2xl font-bold text-ink-900">🏛️</div>
+                    <div className="mt-1.5 font-mono text-[10px] text-ink-400/30 tracking-[2px]">
+                      每日朝议
+                    </div>
+                  </div>
+                  <div className="w-px h-10 bg-ink-400/10" />
+                  <div className="text-center">
+                    <div className="font-serif text-2xl font-bold text-ink-900">🎭</div>
+                    <div className="mt-1.5 font-mono text-[10px] text-ink-400/30 tracking-[2px]">
+                      先哲论战
+                    </div>
+                  </div>
+                  <div className="w-px h-10 bg-ink-400/10" />
+                  <div className="text-center">
+                    <div className="font-serif text-2xl font-bold text-ink-900">📜</div>
+                    <div className="mt-1.5 font-mono text-[10px] text-ink-400/30 tracking-[2px]">
+                      法卷截屏
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 提示文字 */}
+              <div className="text-ink-400/20 text-sm font-serif tracking-[3px]">
+                — 选择左侧朝议，入座思想局 —
+              </div>
             </div>
           ) : (
             <div className="max-w-[920px] mx-auto px-6 py-8">
@@ -391,14 +644,6 @@ export default function RoundTablePage() {
                 </div>
               </div>
 
-              {/* 截图工具栏 */}
-              <div className="mt-4">
-                <ShareToolbar
-                  cardId="debate-card"
-                  fileName={`赛博圆桌-${detail.topic.slice(0, 10)}`}
-                />
-              </div>
-
               {/* 页脚 */}
               <div className="mt-10 pb-8 text-center font-serif text-xs text-ink-400/20 tracking-[3px]">
                 抽身尘嚣三分钟，入座千载思想局。
@@ -406,6 +651,11 @@ export default function RoundTablePage() {
             </div>
           )}
         </main>
+
+        {/* ──── 右侧：贤者谱（桌面端） ──── */}
+        <aside className="hidden xl:block w-[300px] lg:w-[340px] shrink-0 border-l border-ink-400/10 overflow-y-overflow overflow-y-auto h-[calc(100vh-56px)] sticky top-[56px] scrollbar-fade">
+          {rightSidebarContent}
+        </aside>
       </div>
 
       {/* 底部音频播放器 */}
