@@ -4,7 +4,7 @@
 
 # design.md
 
-> 赛博圆桌 · UI 设计规范
+> 论衡 · UI 设计规范
 > 供 Claude Code / Cursor 等 AI 编码工具参考
 > 最后同步于：2026.06.06
 
