@@ -26,8 +26,8 @@ export function Navbar() {
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <a href="#" className="text-xl font-bold tracking-tight">
           {/* TODO: 替换为实际 Logo — 将 logo 文件放入 apps/landing/public/logo.png */}
-          <img src="/logo.png" alt="赛博圆桌" className="h-8 w-auto inline-block" />
-          <span className="text-brand-600">赛博圆桌</span>
+          <img src="/logo.png" alt="论衡" className="h-8 w-auto inline-block" />
+          <span className="text-brand-600">论衡</span>
         </a>
 
         {/* Desktop nav */}

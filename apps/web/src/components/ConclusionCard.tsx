@@ -27,7 +27,7 @@ export function ConclusionCard({ conclusion }: ConclusionCardProps) {
       ...(conclusion.goldenQuotes?.map((q, i) => `【金句${i + 1}】"${q}"`) ?? []),
       conclusion.decisionModel ? `【决策建议】${conclusion.decisionModel}` : '',
       ``,
-      `— 赛博圆桌`,
+      `— 论衡`,
     ]
       .filter(Boolean)
       .join('\n');

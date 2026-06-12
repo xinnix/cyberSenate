@@ -652,10 +652,10 @@ export default function RoundTablePage() {
               {/* Hero 区：产品价值观 */}
               <div className="max-w-lg mx-auto mb-16">
                 <div className="font-serif text-5xl sm:text-6xl font-black text-ink-900 leading-[1.2] tracking-[3px]">
-                  一个问题
+                  一问论衡
                 </div>
                 <div className="mt-3 font-serif text-xl sm:text-2xl font-bold text-gold-700 tracking-[6px]">
-                  万智共鸣
+                  万智自明
                 </div>
                 <div className="mt-8 w-12 h-px bg-ink-400/15 mx-auto" />
                 <p className="mt-8 text-[15px] text-ink-400/60 leading-relaxed tracking-[1px] font-serif">
@@ -755,7 +755,7 @@ export default function RoundTablePage() {
                   </div>
                 </div>
                 <div className="mt-4 text-center font-mono text-[9px] text-ink-400/10 tracking-[3px]">
-                  一个问题，万智共鸣。
+                  一问论衡，万智自明。
                 </div>
               </div>
 
@@ -785,10 +785,10 @@ export default function RoundTablePage() {
       {/* ──── 底部版权 ──── */}
       <div className="border-t border-ink-400/8 px-4 py-3 text-center">
         <div className="font-mono text-[10px] text-ink-400/25 tracking-[2px]">
-          赛博圆桌 · Cyber Senate
+          论衡 · Dialectica
         </div>
         <div className="mt-0.5 font-mono text-[8px] text-ink-400/15 tracking-[1px]">
-          v1.0.0 &copy; {new Date().getFullYear()} 赛博圆桌
+          v1.0.0 &copy; {new Date().getFullYear()} 论衡
         </div>
       </div>
     </div>

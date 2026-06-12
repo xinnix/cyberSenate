@@ -12,7 +12,7 @@ export default function GalleryPage() {
           <br />
           定义他们的人格、立场和说话风格，
           <br />
-          并将他们送上赛博圆桌的辩论场。
+          并将他们送上论衡的辩论场。
         </p>
         <div className="mt-8 font-mono text-xs text-ink-400/20 tracking-[4px]">— 即将开放 —</div>
         <Link

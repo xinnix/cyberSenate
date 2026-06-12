@@ -91,7 +91,7 @@ export default function DebateDetailPage() {
           href="/court"
           className="inline-flex items-center gap-1 text-sm text-ink-400/40 hover:text-ink-400/60 transition tracking-wider mb-6"
         >
-          ← 返回赛博圆桌
+          ← 返回论衡
         </a>
 
         <div
@@ -104,10 +104,10 @@ export default function DebateDetailPage() {
               <span className="text-2xl opacity-75">{typeIcon}</span>
               <div>
                 <div className="font-serif text-base font-bold text-gold-700 tracking-[4px]">
-                  赛博圆桌
+                  论衡
                 </div>
                 <div className="font-mono text-[9px] text-ink-400/25 tracking-[2px]">
-                  CYBER ROUNDTABLE
+                  DIALECTICA
                 </div>
               </div>
             </div>
@@ -174,7 +174,7 @@ export default function DebateDetailPage() {
             </div>
           </div>
           <div className="mt-4 text-center font-mono text-[9px] text-ink-400/10 tracking-[3px]">
-            赛博圆桌 · 自动辩论 · 无需等待
+            论衡 · 自动辩论 · 无需等待
           </div>
         </div>
       </div>

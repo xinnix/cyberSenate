@@ -5,8 +5,8 @@ import { Navbar } from '@/components/Navbar';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: '赛博圆桌 · Cyber Senate',
-  description: '一个问题，万智共鸣。溯千载智慧之流，解今朝现世之围。',
+  title: '论衡 · Dialectica',
+  description: '一问论衡，万智自明。溯千载智慧之流，解今朝现世之围。',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

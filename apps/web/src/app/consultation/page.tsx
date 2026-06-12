@@ -158,9 +158,7 @@ export default function ConsultationPage() {
           <div className="space-y-6">
             {/* 页头 */}
             <div className="text-center mb-6">
-              <h1 className="text-3xl font-serif font-bold text-ink-900 tracking-wider">
-                赛博圆桌
-              </h1>
+              <h1 className="text-3xl font-serif font-bold text-ink-900 tracking-wider">论衡</h1>
               <p className="mt-2 text-sm text-ink-400/60 tracking-wider">
                 提出你的问题，选几位先哲为你论辩
               </p>
@@ -243,10 +241,10 @@ export default function ConsultationPage() {
                   <span className="text-2xl opacity-75">🎯</span>
                   <div>
                     <div className="font-serif text-base font-bold text-gold-700 tracking-[4px]">
-                      赛博圆桌
+                      论衡
                     </div>
                     <div className="font-mono text-[9px] text-ink-400/25 tracking-[2px]">
-                      CYBER ROUNDTABLE
+                      DIALECTICA
                     </div>
                   </div>
                 </div>
@@ -289,7 +287,7 @@ export default function ConsultationPage() {
                 </div>
               </div>
               <div className="mt-4 text-center font-mono text-[9px] text-ink-400/10 tracking-[3px]">
-                赛博圆桌 · 自动辩论 · 无需等待
+                论衡 · 自动辩论 · 无需等待
               </div>
             </div>
 

@@ -5,6 +5,20 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@opencode/shared'],
 
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '3000',
+      },
+    ],
+  },
+
   async rewrites() {
     return [
       {

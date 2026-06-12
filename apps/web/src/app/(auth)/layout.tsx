@@ -7,8 +7,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         {/* Logo */}
         <div className="mb-8 text-center">
           {/* TODO: 替换为实际 Logo 图片 — 将 logo 文件放入 apps/web/public/logo.png */}
-          <Image src="/logo.png" alt="赛博圆桌" width={40} height={40} className="mx-auto mb-2" />
-          <p className="text-sm text-neutral-500">赛博圆桌 · Cyber Senate</p>
+          <Image src="/logo.png" alt="论衡" width={40} height={40} className="mx-auto mb-2" />
+          <p className="text-sm text-neutral-500">论衡 · Dialectica</p>
         </div>
         {children}
       </div>
