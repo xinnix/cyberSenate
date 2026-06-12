@@ -8,11 +8,13 @@ import { AllExceptionsFilter } from './core/filters/http-exception.filter';
 
 import { PrismaService } from './prisma/prisma.service';
 import { FileStorageService } from './shared/services/file-storage.service';
+import { UploadService } from './modules/upload/services/upload.service';
 import { appRouter } from './trpc/app.router';
 import {
   createContext,
   setPrismaService,
   setFileStorageService,
+  setUploadService,
   setAppInstance,
 } from './trpc/trpc';
 import * as trpcExpress from '@trpc/server/adapters/express';
@@ -102,6 +104,9 @@ async function bootstrap() {
 
   const fileStorageService = app.get(FileStorageService);
   setFileStorageService(fileStorageService);
+
+  const uploadService = app.get(UploadService);
+  setUploadService(uploadService);
 
   setAppInstance(app);
 

@@ -2,6 +2,7 @@ import { initTRPC, TRPCError } from '@trpc/server';
 import { ZodError } from 'zod';
 import { PrismaService } from '../prisma/prisma.service';
 import { FileStorageService } from '../shared/services/file-storage.service';
+import { UploadService } from '../modules/upload/services/upload.service';
 import jwt from 'jsonwebtoken';
 import { INestApplication } from '@nestjs/common';
 import { BusinessException } from '../core/exceptions';
@@ -10,6 +11,7 @@ import { businessExceptionToTRPCError } from '../core/middleware/trpc-error-form
 // Global service references
 let prismaServiceInstance: PrismaService | null = null;
 let fileStorageServiceInstance: FileStorageService | null = null;
+let uploadServiceInstance: UploadService | null = null;
 let appInstance: INestApplication | null = null;
 
 export const setPrismaService = (prisma: PrismaService) => {
@@ -18,6 +20,10 @@ export const setPrismaService = (prisma: PrismaService) => {
 
 export const setFileStorageService = (fileStorage: FileStorageService) => {
   fileStorageServiceInstance = fileStorage;
+};
+
+export const setUploadService = (uploadService: UploadService) => {
+  uploadServiceInstance = uploadService;
 };
 
 export const setAppInstance = (app: INestApplication) => {
@@ -110,6 +116,7 @@ async function verifyJwtToken(req: any, prisma: PrismaService): Promise<User | n
 export const createContext = async (opts: any) => {
   const prisma = prismaServiceInstance || opts?.prisma;
   const fileStorage = fileStorageServiceInstance || opts?.fileStorage;
+  const uploadService = uploadServiceInstance || opts?.uploadService;
   const app = appInstance || opts?.app;
   const req = opts?.req;
 
@@ -125,6 +132,7 @@ export const createContext = async (opts: any) => {
   return {
     prisma,
     fileStorage,
+    uploadService,
     app,
     req,
     res: opts?.res,
