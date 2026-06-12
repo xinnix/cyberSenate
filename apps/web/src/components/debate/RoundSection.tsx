@@ -14,6 +14,10 @@ interface RoundSectionProps {
   speeches: Speech[];
   characterColorIndices?: Record<string, number>;
   characterEras?: Record<string, string>;
+  /** 根据轮次号和发言在轮次内的索引，获取合并音频中的章节索引 */
+  getSpeechChapterIndex?: (roundNumber: number, speechIndex: number) => number | undefined;
+  /** 跳转到指定章节并播放 */
+  onPlayAudioChapter?: (chapterIndex: number) => void;
 }
 
 const roundLabels = ['拆解与立论', '交锋与深挖', '结案与收束'];
@@ -24,6 +28,8 @@ export function RoundSection({
   speeches,
   characterColorIndices = {},
   characterEras = {},
+  getSpeechChapterIndex,
+  onPlayAudioChapter,
 }: RoundSectionProps) {
   return (
     <div className="mb-8">
@@ -45,6 +51,10 @@ export function RoundSection({
             colorIndex={characterColorIndices[speech.characterId] ?? 0}
             era={characterEras[speech.characterId]}
             content={speech.content}
+            audioChapterIndex={
+              getSpeechChapterIndex ? getSpeechChapterIndex(roundNumber, i) : undefined
+            }
+            onPlayAudioChapter={onPlayAudioChapter}
           />
         ))}
       </div>

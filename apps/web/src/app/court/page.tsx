@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { apiClient } from '@/lib/api-client';
 import { RoundSection } from '@/components/debate/RoundSection';
 import { SenateDecreeModal } from '@/components/debate/SenateDecreeModal';
-import { AudioPlayer } from '@/components/debate/AudioPlayer';
+import { CourtAudioBar } from '@/components/debate/CourtAudioBar';
 import { useChapterAudioPlayer, type MergedAudio } from '@/hooks/use-audio-player';
 import { getCharacterColors, getInitial } from '@/components/debate/characterColors';
 
@@ -286,6 +286,50 @@ export default function RoundTablePage() {
   // 当前辩论中参与的角色 ID 集合（用于右侧栏高亮）
   const activeSageIds = new Set(detail?.characters?.map((dc) => dc.character.id) ?? []);
 
+  // 当前正在播放音频的角色 ID
+  const speakingCharacterId =
+    mergedAudio && player.isPlaying && player.currentChapter?.characterId
+      ? player.currentChapter.characterId
+      : null;
+
+  /* ── 章节 → 发言 索引映射 ── */
+
+  // 构建 (roundNumber, speechIndexInRound) → chapterIndex 映射
+  const speechChapterMap = useMemo(() => {
+    if (!mergedAudio?.chapters) return null;
+    const map = new Map<string, number>();
+    // 按 roundNumber 分组 speech 类型章节
+    const speechChapters = mergedAudio.chapters
+      .map((ch, idx) => ({ ...ch, idx }))
+      .filter((ch) => ch.type === 'speech');
+    const byRound = new Map<number, typeof speechChapters>();
+    for (const ch of speechChapters) {
+      const rn = ch.roundNumber ?? 0;
+      if (!byRound.has(rn)) byRound.set(rn, []);
+      byRound.get(rn)!.push(ch);
+    }
+    for (const [rn, chapters] of byRound) {
+      chapters.forEach((ch, i) => {
+        map.set(`${rn}-${i}`, ch.idx);
+      });
+    }
+    return map;
+  }, [mergedAudio?.chapters]);
+
+  const getSpeechChapterIndex = useCallback(
+    (roundNumber: number, speechIndex: number): number | undefined => {
+      return speechChapterMap?.get(`${roundNumber}-${speechIndex}`);
+    },
+    [speechChapterMap],
+  );
+
+  const handlePlayAudioChapter = useCallback(
+    (chapterIndex: number) => {
+      player.seekToChapter(chapterIndex);
+    },
+    [player],
+  );
+
   /* ── 侧栏列表（抽离为组件，桌面 & 手机复用） ── */
 
   const sidebarContent = (
@@ -385,20 +429,25 @@ export default function RoundTablePage() {
             const colors = getCharacterColors(index);
             const initial = getInitial(sage.name);
             const isActive = detail && activeSageIds.has(sage.id);
+            const isSpeaking = speakingCharacterId === sage.id;
             return (
               <div
                 key={sage.id}
-                className={`group rounded-md px-3 py-2.5 transition-colors cursor-default border ${
-                  isActive
-                    ? 'bg-parchment-100 border-l-2 border-l-gold-500 border-t border-r border-b border-ink-400/10 shadow-[2px_0_0_0_rgba(212,175,55,0.3)]'
-                    : 'bg-parchment-100/50 hover:bg-parchment-100 border border-ink-400/5 hover:border-gold-500/15'
+                className={`group rounded-md px-3 py-2.5 transition-all duration-300 cursor-default border ${
+                  isSpeaking
+                    ? 'bg-gold-500/10 border-l-2 border-l-gold-500 border-t border-r border-b border-gold-500/30 shadow-[3px_0_8px_-2px_rgba(212,175,55,0.4)]'
+                    : isActive
+                      ? 'bg-parchment-100 border-l-2 border-l-gold-500 border-t border-r border-b border-ink-400/10 shadow-[2px_0_0_0_rgba(212,175,55,0.3)]'
+                      : 'bg-parchment-100/50 hover:bg-parchment-100 border border-ink-400/5 hover:border-gold-500/15'
                 }`}
               >
                 {/* 头部区域 */}
                 <div className="flex items-start gap-2.5">
                   {/* 头像 */}
                   <div
-                    className="shrink-0 w-9 h-9 rounded-md flex items-center justify-center overflow-hidden text-sm font-bold"
+                    className={`shrink-0 w-9 h-9 rounded-md flex items-center justify-center overflow-hidden text-sm font-bold ${
+                      isSpeaking ? 'ring-2 ring-gold-500/60 animate-pulse' : ''
+                    }`}
                     style={{ backgroundColor: colors.bg, color: colors.text }}
                   >
                     {sage.avatar ? (
@@ -419,9 +468,14 @@ export default function RoundTablePage() {
                       <span className="rounded bg-parchment-300/80 px-1.5 py-0.5 text-[9px] font-mono text-ink-500/60 leading-tight">
                         {sage.era}
                       </span>
-                      {isActive && (
+                      {isActive && !isSpeaking && (
                         <span className="rounded bg-gold-500/10 px-1.5 py-0.5 text-[8px] font-mono text-gold-600/70 leading-tight tracking-[1px]">
                           参议中
+                        </span>
+                      )}
+                      {isSpeaking && (
+                        <span className="rounded bg-gold-500/20 px-1.5 py-0.5 text-[8px] font-mono text-gold-700 leading-tight tracking-[1px] animate-pulse">
+                          🔊 发言中
                         </span>
                       )}
                     </div>
@@ -533,6 +587,28 @@ export default function RoundTablePage() {
             </div>
           </div>
 
+          {/* ──── 音频控制条（仅音频已生成时显示） ──── */}
+          {mergedAudio && (
+            <CourtAudioBar
+              audio={mergedAudio}
+              currentTime={player.currentTime}
+              duration={player.duration}
+              isPlaying={player.isPlaying}
+              currentChapter={player.currentChapter}
+              currentChapterIndex={player.currentChapterIndex}
+              totalChapters={player.totalChapters}
+              onToggle={player.toggle}
+              onNext={player.next}
+              onPrev={player.prev}
+              onSeek={player.seek}
+              onSeekToChapter={player.seekToChapter}
+              onClose={() => {
+                player.stop();
+                setMergedAudio(null);
+              }}
+            />
+          )}
+
           {loadingDetail ? (
             <div className="flex justify-center py-24">
               <div className="h-8 w-8 animate-spin rounded-full border-4 border-ink-200/30 border-t-ink-400" />
@@ -621,6 +697,8 @@ export default function RoundTablePage() {
                     speeches={round.speeches}
                     characterColorIndices={charColorIndices}
                     characterEras={charEras}
+                    getSpeechChapterIndex={getSpeechChapterIndex}
+                    onPlayAudioChapter={handlePlayAudioChapter}
                   />
                 ))}
 
@@ -679,29 +757,6 @@ export default function RoundTablePage() {
           v1.0.0 &copy; {new Date().getFullYear()} 赛博圆桌
         </div>
       </div>
-
-      {/* 底部音频播放器 */}
-      {mergedAudio && (
-        <AudioPlayer
-          audio={mergedAudio}
-          currentTime={player.currentTime}
-          duration={player.duration}
-          isPlaying={player.isPlaying}
-          currentChapter={player.currentChapter}
-          currentChapterIndex={player.currentChapterIndex}
-          totalChapters={player.totalChapters}
-          chapters={player.chapters}
-          onToggle={player.toggle}
-          onNext={player.next}
-          onPrev={player.prev}
-          onSeek={player.seek}
-          onSeekToChapter={player.seekToChapter}
-          onStop={() => {
-            player.stop();
-            setMergedAudio(null);
-          }}
-        />
-      )}
     </div>
   );
 }
