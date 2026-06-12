@@ -26,10 +26,10 @@ export function Navbar() {
             height={32}
             className="opacity-80 group-hover:opacity-100 transition-opacity"
           />
-          <span className="font-serif text-2xl font-black text-ink-900 tracking-[6px] group-hover:text-gold-700 transition">
+          <span className="font-serif text-lg font-bold text-ink-900 tracking-[3px] group-hover:text-gold-700 transition">
             论衡
           </span>
-          <span className="hidden sm:inline font-serif text-xs text-ink-400/40 tracking-[2px] ml-2 leading-none border-l border-ink-400/15 pl-2">
+          <span className="hidden sm:inline font-serif text-sm text-ink-400/50 tracking-[3px] ml-0.5 leading-none">
             一问论衡 · 万智自明
           </span>
         </Link>
