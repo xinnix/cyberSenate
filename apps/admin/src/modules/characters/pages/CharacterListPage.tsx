@@ -80,7 +80,7 @@ export const CharacterListPage = () => {
           {
             resource: 'characters',
             id: editingRecord.id,
-            values: { id: editingRecord.id, data: values },
+            values,
           },
           {
             onSuccess: () => {

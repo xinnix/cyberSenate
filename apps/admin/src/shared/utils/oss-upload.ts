@@ -1,8 +1,9 @@
 /**
  * OSS 直传上传工具
  *
- * 使用阿里云 OSS Post Policy 签名方式实现前端直传
- * 文档：https://help.aliyun.com/document_detail/31989.html
+ * 支持两种上传方式：
+ * 1. OSS 直传：使用阿里云 OSS Post Policy 签名方式实现前端直传
+ * 2. 服务端上传：本地存储时回退到 REST API 服务端上传
  */
 
 import { trpcClient } from '../dataProvider/dataProvider';
@@ -39,15 +40,31 @@ export type UploadType =
  */
 export class OSSUploader {
   /**
-   * 上传文件到 OSS
+   * 上传文件
    *
-   * @param file 要上传的文件
-   * @param type 上传类型（用于确定存储路径）
-   * @returns 上传结果
+   * 优先尝试 OSS 直传，若后端为本地存储则自动回退到服务端上传。
    */
   static async upload(file: File, type: UploadType): Promise<UploadResult> {
+    try {
+      return await this.uploadToOSS(file, type);
+    } catch {
+      // OSS 凭证获取失败（本地存储等场景），回退到服务端上传
+      return await this.uploadViaServer(file, type);
+    }
+  }
+
+  /**
+   * OSS 直传上传
+   * 凭证为 null 表示后端为本地存储，直接跳过以避免不必要的 500 错误。
+   */
+  private static async uploadToOSS(file: File, type: UploadType): Promise<UploadResult> {
     // 1. 获取上传凭证
     const credentials = await trpcClient.upload.getUploadCredentials.query({ type });
+
+    // 本地存储等不支持直传的场景，credentials 为 null
+    if (!credentials) {
+      throw new Error('STORAGE_NOT_SUPPORT_DIRECT_UPLOAD');
+    }
 
     // 2. 生成文件名
     const timestamp = Date.now();
@@ -62,8 +79,7 @@ export class OSSUploader {
     formData.append('policy', credentials.policy);
     formData.append('OSSAccessKeyId', credentials.accessKeyId);
     formData.append('signature', credentials.signature);
-    formData.append('success_action_status', '200'); // 返回 200 状态码
-    // 仅在 STS token 存在时添加
+    formData.append('success_action_status', '200');
     if (credentials.securityToken) {
       formData.append('x-oss-security-token', credentials.securityToken);
     }
@@ -86,6 +102,35 @@ export class OSSUploader {
       url,
       fileName: file.name,
       fileSize: file.size,
+    };
+  }
+
+  /**
+   * 服务端上传（通过 tRPC，本地存储等场景使用）
+   */
+  private static async uploadViaServer(file: File, type: UploadType): Promise<UploadResult> {
+    // 将文件转为 base64 data URI
+    const dataUri = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+    const result = await trpcClient.upload.uploadFile.mutate({
+      file: dataUri,
+      fileName: file.name,
+      type,
+    });
+
+    if (!result?.url) {
+      throw new Error('上传失败：未返回文件 URL');
+    }
+
+    return {
+      url: result.url,
+      fileName: result.fileName || file.name,
+      fileSize: result.fileSize || file.size,
     };
   }
 
