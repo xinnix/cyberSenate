@@ -187,7 +187,7 @@ function createDebatesRouter() {
 
         const fileStorage = ctx.app.get(FileStorageService) as FileStorageService;
         const signedUrl = await fileStorage.getSignedUrl(debate.mergedAudioUrl, 300);
-        const filename = `赛博圆桌-${debate.topic.substring(0, 20).replace(/[^a-zA-Z0-9一-鿿]/g, '_')}.mp3`;
+        const filename = `论衡-${debate.topic.substring(0, 20).replace(/[^a-zA-Z0-9一-鿿]/g, '_')}.mp3`;
 
         return { url: signedUrl, filename, duration: debate.mergedAudioDuration };
       }),

@@ -29,7 +29,7 @@ export class DebatesController {
   ) {}
 
   /**
-   * POST /api/debates/court-trigger — 创建随机辩论（赛博圆桌·随机场），返回 ID，通过 SSE 获取流式内容
+   * POST /api/debates/court-trigger — 创建随机辩论（论衡·随机场），返回 ID，通过 SSE 获取流式内容
    */
   @Post('court-trigger')
   async courtTrigger(@Body() body: { topic?: string }) {
@@ -142,7 +142,7 @@ export class DebatesController {
   }
 
   /**
-   * POST /api/debates — 创建辩论（赛博圆桌·问策场）
+   * POST /api/debates — 创建辩论（论衡·问策场）
    */
   @Post()
   async create(@Body() body: any, @Req() req: Request, @Res() res: Response) {
@@ -259,7 +259,7 @@ export class DebatesController {
     }
 
     const signedUrl = await this.fileStorage.getSignedUrl(debate.mergedAudioUrl, 300);
-    const filename = `赛博圆桌-${debate.topic.substring(0, 20).replace(/[^a-zA-Z0-9一-鿿]/g, '_')}.mp3`;
+    const filename = `论衡-${debate.topic.substring(0, 20).replace(/[^a-zA-Z0-9一-鿿]/g, '_')}.mp3`;
     res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(filename)}"`);
     res.redirect(signedUrl);
   }

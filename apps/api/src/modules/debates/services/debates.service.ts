@@ -623,12 +623,12 @@ export class DebatesService {
       [
         {
           role: 'system',
-          content: `你是「赛博圆桌」的主持人。你的职责是引导一场结构化辩论。
+          content: `你是「论衡」的主持人。你的职责是引导一场结构化辩论。
 你的风格：公正、犀利、善于提炼冲突点。用简练的中文表达。`,
         },
         {
           role: 'user',
-          content: `你是「赛博圆桌」的主持人。辩论即将开始。
+          content: `你是「论衡」的主持人。辩论即将开始。
 
 议题：「${topic}」
 参与先哲：${characterIntro}
@@ -649,12 +649,12 @@ export class DebatesService {
       [
         {
           role: 'system',
-          content: `你是「赛博圆桌」的主持人。你的职责是引导一场结构化辩论。
+          content: `你是「论衡」的主持人。你的职责是引导一场结构化辩论。
 你的风格：公正、犀利、善于提炼冲突点。用简练的中文表达。`,
         },
         {
           role: 'user',
-          content: `你是「赛博圆桌」的主持人。辩论已经结束。
+          content: `你是「论衡」的主持人。辩论已经结束。
 
 议题回顾：「${topic}」
 核心冲突：${conclusion.coreConflict}
