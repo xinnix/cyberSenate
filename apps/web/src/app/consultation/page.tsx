@@ -110,6 +110,7 @@ export default function ConsultationPage() {
           es.close();
           setLiveDone(true);
           apiClient
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .get<any>(`/debates/${debateId}`)
             .then((r) => {
               setRounds(r.data?.rounds || []);
@@ -133,8 +134,9 @@ export default function ConsultationPage() {
           setLiveDone(true);
         }
       };
-    } catch (err: any) {
-      alert(err?.message || '提交失败');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : '提交失败';
+      alert(message);
     }
   };
 
@@ -221,7 +223,7 @@ export default function ConsultationPage() {
         {step === 'generating' && (
           <LiveStream
             topic={topic}
-            events={liveEvents}
+            events={liveEvents as Parameters<typeof LiveStream>[0]['events']}
             done={liveDone}
             characterColorIndices={charColorIndices}
             characterEras={charEras}

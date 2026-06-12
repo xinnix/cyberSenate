@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 
 const NAV_ITEMS = [
@@ -18,10 +19,12 @@ export function Navbar() {
         {/* Brand */}
         <Link href="/court" className="flex items-center gap-3 group">
           {/* TODO: 替换为实际 Logo 图片 — 将 logo 文件放入 apps/web/public/logo.png */}
-          <img
+          <Image
             src="/logo.png"
             alt="赛博圆桌"
-            className="h-8 w-auto opacity-80 group-hover:opacity-100 transition-opacity"
+            width={32}
+            height={32}
+            className="opacity-80 group-hover:opacity-100 transition-opacity"
           />
           <span className="font-serif text-lg font-bold text-ink-900 tracking-[3px] group-hover:text-gold-700 transition">
             赛博圆桌

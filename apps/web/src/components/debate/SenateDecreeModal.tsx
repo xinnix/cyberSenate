@@ -1,10 +1,7 @@
 'use client';
 
 import { useRef, useState, useEffect } from 'react';
-import dynamic from 'next/dynamic';
 import { QRCodeSVG } from 'qrcode.react';
-
-const TopologyChart = dynamic(() => import('./TopologyChart'), { ssr: false });
 
 /* ── 类型 ─────────────────────────────────────── */
 

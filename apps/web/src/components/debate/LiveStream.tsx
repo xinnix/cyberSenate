@@ -11,7 +11,7 @@ interface LiveEvent {
   content?: string;
   characterId?: string;
   characterName?: string;
-  conclusion?: any;
+  conclusion?: Record<string, unknown>;
   message?: string;
   status?: string;
 }

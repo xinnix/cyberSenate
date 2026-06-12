@@ -13,6 +13,7 @@ interface AudioToggleButtonProps {
 type AudioState = 'idle' | 'checking' | 'generating' | 'ready' | 'failed';
 
 /** 全局响应拦截器包裹格式：{ success, data, ... } */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function unwrap<T>(raw: any): T {
   if (raw?.success === true && raw?.data !== undefined) return raw.data as T;
   return raw as T;

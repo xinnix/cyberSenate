@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import Image from 'next/image';
 import { apiClient } from '@/lib/api-client';
 import { RoundSection } from '@/components/debate/RoundSection';
 import { SenateDecreeModal } from '@/components/debate/SenateDecreeModal';
 import { CourtAudioBar } from '@/components/debate/CourtAudioBar';
-import { useChapterAudioPlayer, type MergedAudio } from '@/hooks/use-audio-player';
+import { useChapterAudioPlayer, type MergedAudio, type Chapter } from '@/hooks/use-audio-player';
 import { getCharacterColors, getInitial } from '@/components/debate/characterColors';
 
 /* ── 类型 ─────────────────────────────────────────── */
@@ -31,11 +32,31 @@ interface DebateListItem {
   }[];
 }
 
+interface Speech {
+  characterId: string;
+  characterName: string;
+  content: string;
+}
+
+interface DebateRound {
+  roundNumber: number;
+  title: string;
+  speeches: Speech[];
+}
+
+interface Conclusion {
+  topic: string;
+  characterSignatures: string[];
+  coreConflict: string;
+  goldenQuotes: string[];
+  decisionModel: string;
+}
+
 interface DebateDetail extends DebateListItem {
   type: string;
   status: string;
-  rounds: any[];
-  conclusion: any;
+  rounds: DebateRound[];
+  conclusion: Conclusion;
 }
 
 interface DailyStatus {
@@ -192,7 +213,7 @@ export default function RoundTablePage() {
 
         // 构建角色索引
         const meta: Record<string, { index: number; era: string }> = {};
-        d.characters?.forEach((dc: any, i: number) => {
+        d.characters?.forEach((dc, i: number) => {
           const c = dc.character;
           if (c?.id) meta[c.id] = { index: i, era: c.era || '' };
         });
@@ -222,7 +243,7 @@ export default function RoundTablePage() {
         const audioRes = await apiClient.get<{
           mergedAudioUrl: string;
           mergedAudioDuration: number;
-          chapterMetadata: any[];
+          chapterMetadata: Chapter[];
         }>(`/debates/${debateId}/audio`);
         const audioData = audioRes?.data ?? audioRes;
         if (audioData?.mergedAudioUrl && audioData?.chapterMetadata?.length > 0) {
@@ -389,7 +410,7 @@ export default function RoundTablePage() {
                 {d.topic}
               </h3>
               <div className="mt-2 flex items-center gap-1.5 flex-wrap">
-                {d.characters?.map((dc: any, i: number) => (
+                {d.characters?.map((dc, i: number) => (
                   <span key={i} className="text-[11px] text-ink-400/50">
                     {dc.character.name}
                     {i < d.characters.length - 1 && ' ·'}
@@ -462,17 +483,13 @@ export default function RoundTablePage() {
                 <div className="flex items-start gap-2.5">
                   {/* 头像 */}
                   <div
-                    className={`shrink-0 w-9 h-9 rounded-md flex items-center justify-center overflow-hidden text-sm font-bold ${
+                    className={`relative shrink-0 w-9 h-9 rounded-md flex items-center justify-center overflow-hidden text-sm font-bold ${
                       isSpeaking ? 'ring-2 ring-gold-500/60 animate-pulse' : ''
                     }`}
                     style={{ backgroundColor: colors.bg, color: colors.text }}
                   >
                     {sage.avatar ? (
-                      <img
-                        src={sage.avatar}
-                        alt={sage.name}
-                        className="w-full h-full object-cover"
-                      />
+                      <Image src={sage.avatar} alt={sage.name} fill className="object-cover" />
                     ) : (
                       initial
                     )}
@@ -694,7 +711,7 @@ export default function RoundTablePage() {
                     {detail.topic}
                   </div>
                   <div className="mt-3 flex justify-center gap-1.5 flex-wrap">
-                    {detail.characters?.map((dc: any, i: number) => (
+                    {detail.characters?.map((dc, i: number) => (
                       <span
                         key={i}
                         className="rounded-full bg-parchment-300/60 px-2.5 py-0.5 text-xs text-ink-400/50"
@@ -706,7 +723,7 @@ export default function RoundTablePage() {
                 </div>
 
                 {/* 轮次 */}
-                {detail.rounds?.map((round: any, idx: number) => (
+                {detail.rounds?.map((round, idx: number) => (
                   <RoundSection
                     key={idx}
                     roundNumber={round.roundNumber}

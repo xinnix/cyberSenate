@@ -29,8 +29,9 @@ export default function RegisterPage() {
     try {
       await register({ username: form.username, email: form.email, password: form.password });
       router.push('/dashboard');
-    } catch (err: any) {
-      setError(err?.message || '注册失败');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : '注册失败';
+      setError(message);
     } finally {
       setLoading(false);
     }

@@ -6,6 +6,26 @@ import { apiClient } from '@/lib/api-client';
 import { RoundSection } from '@/components/debate/RoundSection';
 import { ConclusionCard } from '@/components/debate/ConclusionCard';
 
+interface Speech {
+  characterId: string;
+  characterName: string;
+  content: string;
+}
+
+interface DebateRound {
+  roundNumber: number;
+  title: string;
+  speeches: Speech[];
+}
+
+interface Conclusion {
+  topic: string;
+  characterSignatures: string[];
+  coreConflict: string;
+  goldenQuotes: string[];
+  decisionModel: string;
+}
+
 interface DebateDetail {
   id: string;
   topic: string;
@@ -14,8 +34,8 @@ interface DebateDetail {
   characters: {
     character: { id: string; name: string; avatar: string | null; era: string; mbti: string };
   }[];
-  rounds: any[];
-  conclusion: any;
+  rounds: DebateRound[];
+  conclusion: Conclusion;
 }
 
 export default function DebateDetailPage() {
@@ -52,7 +72,7 @@ export default function DebateDetailPage() {
 
   const charColorIndices: Record<string, number> = {};
   const charEras: Record<string, string> = {};
-  debate.characters?.forEach((dc: any, i: number) => {
+  debate.characters?.forEach((dc, i: number) => {
     const c = dc.character;
     if (c?.id) {
       charColorIndices[c.id] = i;
@@ -107,7 +127,7 @@ export default function DebateDetailPage() {
               {debate.topic}
             </div>
             <div className="mt-3 flex justify-center gap-1.5 flex-wrap">
-              {debate.characters?.map((dc: any, i: number) => (
+              {debate.characters?.map((dc, i: number) => (
                 <span
                   key={i}
                   className="rounded-full bg-parchment-300/60 px-2.5 py-0.5 text-xs text-ink-400/50"
@@ -119,7 +139,7 @@ export default function DebateDetailPage() {
           </div>
 
           {/* 轮次 */}
-          {debate.rounds?.map((round: any, idx: number) => (
+          {debate.rounds?.map((round, idx: number) => (
             <RoundSection
               key={idx}
               roundNumber={round.roundNumber}

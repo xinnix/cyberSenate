@@ -22,8 +22,9 @@ function LoginForm() {
       await login(username, password);
       const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
       router.push(callbackUrl);
-    } catch (err: any) {
-      setError(err?.message || '登录失败，请检查用户名和密码');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : '登录失败，请检查用户名和密码';
+      setError(message);
     } finally {
       setLoading(false);
     }
