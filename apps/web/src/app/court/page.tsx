@@ -292,6 +292,24 @@ export default function RoundTablePage() {
       ? player.currentChapter.characterId
       : null;
 
+  // 参议谱：展示 7 位角色（含当前讨论的 3 位，其余随机）
+  const displaySages = useMemo(() => {
+    if (sages.length <= 7) return sages;
+
+    const active = sages.filter((s) => activeSageIds.has(s.id));
+    const inactive = sages.filter((s) => !activeSageIds.has(s.id));
+
+    // Fisher-Yates shuffle 取前 N 个补齐
+    const shuffled = [...inactive];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    const fill = 7 - active.length;
+    return [...active, ...shuffled.slice(0, Math.max(0, fill))];
+  }, [sages, activeSageIds]);
+
   /* ── 章节 → 发言 索引映射 ── */
 
   // 构建 (roundNumber, speechIndexInRound) → chapterIndex 映射
@@ -409,9 +427,9 @@ export default function RoundTablePage() {
       <div className="px-5 pt-6 pb-3 border-b border-ink-400/8">
         <div className="flex items-center gap-2">
           <span className="text-lg opacity-75">👥</span>
-          <h2 className="font-serif text-sm font-bold text-gold-700 tracking-[3px]">群贤谱</h2>
+          <h2 className="font-serif text-sm font-bold text-gold-700 tracking-[3px]">参议谱</h2>
         </div>
-        <p className="mt-1 font-mono text-[9px] text-ink-400/25 tracking-[2px]">COURT OF SAGES</p>
+        <p className="mt-1 font-mono text-[9px] text-ink-400/25 tracking-[2px]">COUNCIL OF SAGES</p>
       </div>
 
       {/* 列表 */}
@@ -425,7 +443,7 @@ export default function RoundTablePage() {
             <p className="text-sm text-ink-400/30">暂无贤者</p>
           </div>
         ) : (
-          sages.map((sage, index) => {
+          displaySages.map((sage, index) => {
             const colors = getCharacterColors(index);
             const initial = getInitial(sage.name);
             const isActive = detail && activeSageIds.has(sage.id);
