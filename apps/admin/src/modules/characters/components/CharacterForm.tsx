@@ -1,4 +1,5 @@
 import { Form, Input, Select, Switch, InputNumber } from 'antd';
+import { OSSUpload } from '../../../shared/components/OSSUpload';
 
 interface CharacterFormProps {
   form: any;
@@ -76,8 +77,8 @@ export const CharacterForm = ({ form, isEdit = false }: CharacterFormProps) => {
         <Input.TextArea placeholder="完整的角色 prompt" rows={4} />
       </Form.Item>
 
-      <Form.Item name="avatar" label="头像 URL">
-        <Input placeholder="头像图片地址（可选）" />
+      <Form.Item name="avatar" label="头像">
+        <OSSUpload type="avatar" maxFileSize={2 * 1024 * 1024} />
       </Form.Item>
 
       <Form.Item name="sort" label="排序">
