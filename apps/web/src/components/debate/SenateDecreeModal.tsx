@@ -219,7 +219,7 @@ export function SenateDecreeModal({ conclusion, debateId, issueNumber, onClose }
                               className="text-sm font-bold font-serif"
                               style={{ color: persona.color }}
                             >
-                              {persona.name.replace(/[🏛️🧓🦾🎩🤯🧘📐]/g, '').trim()}
+                              {persona.name.replace(/[🏛🧓🦾🎩🤯🧘📐]/gu, '').trim()}
                             </span>
                             <span
                               className="text-[10px] font-mono px-2 py-0.5 rounded-full"

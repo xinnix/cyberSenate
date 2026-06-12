@@ -28,7 +28,7 @@ export function ShareToolbar({ cardId, fileName }: ShareToolbarProps) {
     const origHeight = card.style.height;
 
     card.style.overflow = 'hidden';
-    let cw = card.offsetWidth;
+    const cw = card.offsetWidth;
     let ch = card.offsetHeight;
 
     if (mode === 'square') {

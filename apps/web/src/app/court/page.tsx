@@ -174,7 +174,6 @@ export default function RoundTablePage() {
   // 首次加载列表（仅一次）
   useEffect(() => {
     fetchDebates(1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /* ── 获取详情 ──────────────────────────────────── */
