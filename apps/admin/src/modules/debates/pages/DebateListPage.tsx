@@ -119,7 +119,7 @@ export function DebateListPage({ debateType, title }: DebateListPageProps) {
       if (res?.url) {
         const a = document.createElement('a');
         a.href = res.url;
-        a.download = res.filename || `赛博圆桌-${topic.substring(0, 20)}.mp3`;
+        a.download = res.filename || `论衡-${topic.substring(0, 20)}.mp3`;
         a.target = '_blank';
         a.click();
       }

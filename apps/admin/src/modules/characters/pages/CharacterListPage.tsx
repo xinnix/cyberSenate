@@ -192,7 +192,7 @@ export const CharacterListPage = () => {
             <Col>
               <h1 style={{ margin: 0, fontSize: 24, fontWeight: 'bold' }}>先哲角色管理</h1>
               <div style={{ fontSize: 14, color: '#999', marginTop: 8 }}>
-                管理赛博圆桌的先哲角色定义（7维度）
+                管理论衡的先哲角色定义（7维度）
               </div>
             </Col>
             <Col>

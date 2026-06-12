@@ -41,7 +41,7 @@ const iconMap: Record<string, React.ReactNode> = {
 const menuConfig = [
   {
     key: "business",
-    label: "赛博圆桌",
+    label: "论衡",
     icon: "CommentOutlined",
     permission: null,
     children: [
@@ -180,7 +180,7 @@ export function AdminLayout() {
               {/* TODO: 替换为实际 Logo 图片 — 将 logo 文件放入 apps/admin/public/logo.png */}
               <img src="../logo.png" alt="" width={36} height={36} />
               <div style={{ color: '#fff', fontWeight: 600, fontSize: 16, whiteSpace: 'nowrap' }}>
-                赛博圆桌
+                论衡
               </div>
             </div>
           )}
