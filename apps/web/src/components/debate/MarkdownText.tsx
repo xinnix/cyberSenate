@@ -74,6 +74,7 @@ export function MarkdownText({ content, className = '' }: MarkdownTextProps) {
   const elements: React.ReactNode[] = [];
   let key = 0;
   let listItems: React.ReactNode[] = [];
+  let paragraphLines: string[] = [];
 
   const flushList = () => {
     if (listItems.length > 0) {
@@ -86,18 +87,38 @@ export function MarkdownText({ content, className = '' }: MarkdownTextProps) {
     }
   };
 
+  const flushParagraph = () => {
+    if (paragraphLines.length > 0) {
+      elements.push(
+        <p key={key++} className="mb-3 last:mb-0">
+          {paragraphLines.length === 1
+            ? parseInline(paragraphLines[0])
+            : paragraphLines.map((line, i) => (
+                <React.Fragment key={i}>
+                  {i > 0 ? <br /> : null}
+                  {parseInline(line)}
+                </React.Fragment>
+              ))}
+        </p>,
+      );
+      paragraphLines = [];
+    }
+  };
+
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const trimmed = line.trim();
 
-    // 空行
+    // 空行 — 结束当前段落
     if (!trimmed) {
+      flushParagraph();
       flushList();
       continue;
     }
 
     // 分割线
     if (/^_{3,}$/.test(trimmed) || /^\*{3,}$/.test(trimmed) || /^---+$/.test(trimmed)) {
+      flushParagraph();
       flushList();
       elements.push(<hr key={key++} className="my-3 border-ink-200/30" />);
       continue;
@@ -106,6 +127,7 @@ export function MarkdownText({ content, className = '' }: MarkdownTextProps) {
     // 标题 ### 或 ##
     const headingMatch = trimmed.match(/^#{1,3}\s+(.+)/);
     if (headingMatch) {
+      flushParagraph();
       flushList();
       elements.push(
         <p key={key++} className="font-serif font-bold text-ink-900 mt-2 mb-1">
@@ -117,6 +139,7 @@ export function MarkdownText({ content, className = '' }: MarkdownTextProps) {
 
     // 引用 >
     if (trimmed.startsWith('>')) {
+      flushParagraph();
       flushList();
       const quoteText = trimmed.replace(/^>\s*/, '');
       elements.push(
@@ -133,6 +156,7 @@ export function MarkdownText({ content, className = '' }: MarkdownTextProps) {
     // 无序列表 [- * +]
     const ulMatch = trimmed.match(/^[-*+]\s+(.+)/);
     if (ulMatch) {
+      flushParagraph();
       listItems.push(
         <li key={listItems.length} className="text-ink-800">
           {parseInline(ulMatch[1])}
@@ -144,6 +168,7 @@ export function MarkdownText({ content, className = '' }: MarkdownTextProps) {
     // 有序列表 1. 2. 3.
     const olMatch = trimmed.match(/^\d+\.\s+(.+)/);
     if (olMatch) {
+      flushParagraph();
       listItems.push(
         <li key={listItems.length} className="text-ink-800 list-decimal">
           {parseInline(olMatch[1])}
@@ -154,20 +179,17 @@ export function MarkdownText({ content, className = '' }: MarkdownTextProps) {
 
     // 代码块开始/结束 — 跳过（简化处理）
     if (trimmed.startsWith('```')) {
+      flushParagraph();
       flushList();
       continue;
     }
 
-    // 普通段落
+    // 普通段落行
     flushList();
-    elements.push(
-      <span key={key++} className="inline">
-        {i > 0 ? ' ' : ''}
-        {parseInline(trimmed)}
-      </span>,
-    );
+    paragraphLines.push(trimmed);
   }
 
+  flushParagraph();
   flushList();
 
   return <div className={`leading-[1.8] tracking-wide font-serif ${className}`}>{elements}</div>;
