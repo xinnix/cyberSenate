@@ -118,13 +118,9 @@ export class DebatesService {
     try {
       const assignedPersonas = this.assignRoles(personas);
 
-      await this.prisma.debateCharacter.createMany({
-        data: assignedPersonas.map((p) => ({
-          debateId,
-          characterId: p.id,
-          role: p.assignedRole,
-        })),
-      });
+      // 关联已由调用方（daily-court / controller.create）建立，
+      // 这里不再重复 createMany，避免撞 @@unique([debateId, characterId])。
+      // 与 generateDebateStream 保持一致（同样只读已有关联，不重复写入）。
 
       // 主持人开场
       const moderatorOpening = await this.generateModeratorOpening(topic, assignedPersonas);
