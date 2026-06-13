@@ -2,5 +2,5 @@ import uni from '@uni-helper/eslint-config'
 
 export default uni({
   unocss: true,
-  ignores: ['**/*.md'],
+  ignores: ['**/*.md', 'src/static/iconfont/**'],
 })
