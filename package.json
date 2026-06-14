@@ -48,7 +48,7 @@
     "tsx": "4.21.0"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,jsx,json,md,yml,yaml,css,scss}": [
+    "*.{ts,tsx,js,jsx,vue,json,md,yml,yaml,css,scss}": [
       "prettier --write"
     ]
   },
