@@ -4,3 +4,5 @@ dist
 generated
 pnpm-lock.yaml
 *.min.js
+# miniapp 走 @uni-helper/eslint-config（含 ESLint Stylistic）独立格式化，不归 prettier
+apps/miniapp
