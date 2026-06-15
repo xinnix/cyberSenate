@@ -1,328 +1,141 @@
-<h1 align="center">OpenCode Scaffold</h1>
+<h1 align="center">论衡 · Dialectica</h1>
 
 <p align="center">
-  <strong>Agent-Centric 全栈管理系统脚手架 — 让 Claude Code 写代码，人类做决策</strong>
+  <strong>一问论衡，万智自明。</strong><br>
+  溯千载智慧之流，解今朝现世之围。
 </p>
 
 <p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"></a>
-  <img src="https://img.shields.io/badge/Node-%3E%3D18-green.svg" alt="Node">
-  <img src="https://img.shields.io/badge/pnpm-workspace-orange.svg" alt="pnpm">
-  <img src="https://img.shields.io/badge/PRs-Welcome-brightgreen.svg" alt="PRs Welcome">
+  <img src="https://img.shields.io/badge/状态-生产就绪-b8963a.svg" alt="Production Ready">
+  <img src="https://img.shields.io/badge/架构-Multi--Agent%20FSM-2a2824.svg" alt="Multi-Agent FSM">
+  <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License">
+</p>
+
+<!-- 主视觉：将「朝议法卷」长图放入 docs/images/court-decree.png -->
+<p align="center">
+  <img src="docs/images/court-decree.png" alt="朝议法卷 · The Senate Decree" width="560">
 </p>
 
 ---
 
-克隆即开工。内置 RBAC、双身份认证、微信支付、文件上传，一条命令生成全栈 CRUD 模块。**以 Claude Code 为主要开发者设计** — 人类只需定义业务需求，代码由 Agent 生成。
+> 一个基于 **Multi-Agent 动态极化状态机** 的结构化思辨决策工具。
+> 把模糊的现世之围，交给三位先哲在朝堂之上唇枪舌剑，淬炼成一份可沉淀、可分享、自带社交传播属性的「思想资产」。
 
-## 核心价值
+**抽身尘嚣三分钟，入座千载思想局。**
 
-| 能力                     | 实现                                                                               |
-| ------------------------ | ---------------------------------------------------------------------------------- |
-| **一条命令生成全栈模块** | `/genModule product` → Prisma + tRPC + Service + 前端页面 + 小程序 API             |
-| **端到端类型安全**       | `schema.prisma` → Prisma Client → tRPC Router → Zod Schema → 前端，零手写 API 契约 |
-| **CRUD 路由工厂**        | `createCrudRouter('Model', schemas)` 一行生成 6 个 procedure + 搜索 + 过滤         |
-| **声明式前端**           | `StandardListPage` + `StandardForm` + `FieldDefinition`，配置即页面                |
-| **双身份认证**           | Admin (RBAC) + User (微信登录)，JWT `type` claim 自动隔离                          |
-| **权限即中间件**         | `permissionProcedure('user', 'create')` 声明式鉴权，super_admin 自动放行           |
-| **Token 自动刷新**       | 双端 401→refresh→retry，mutex 防并发                                               |
-| **业务友好报错**         | PostgreSQL 约束违例自动翻译为中文用户提示                                          |
+## 为什么是论衡
 
-## 技术栈
+当代人被碎片化信息淹没：立场先行、情绪拉扯、决策焦虑。一个问题扔进信息流，回来的是更多噪音。
 
-| 层           | 技术                                    | 职责                       |
-| ------------ | --------------------------------------- | -------------------------- |
-| **Backend**  | NestJS + tRPC + Prisma + PostgreSQL     | API + 类型安全 RPC + ORM   |
-| **Admin UI** | React 19 + Refine + Ant Design 5 + tRPC | 管理后台                   |
-| **Web**      | Next.js 15 + Tailwind CSS v4 + REST     | 用户端 Web 应用            |
-| **Landing**  | Next.js 15 + Tailwind CSS v4 (SSG)      | 落地页 / 营销站            |
-| **Miniapp**  | uni-app + Vue 3 + TypeScript            | 微信小程序                 |
-| **Shared**   | Zod + `@opencode/shared`                | 验证 Schema + 类型注册中心 |
+论衡反其道而行——它不给你「一个答案」，而是把一个问题丢进一座**赛博朝堂**：三位性格迥异的先哲（罗马法官、赛博黑客、古典贤者……）按一套确定性的状态机相互诘难、围剿、收割，最后由主持人落槌结案。你得到的不是观点，而是**一幅思想的全景拓扑**：分歧在哪、张力在哪、边界在哪。
 
-**类型流：**
+高结构化的思辨，本身就是一种智力格调——而格调，天然适合传播。
 
-```
-schema.prisma ──► Prisma Client ──► AppRouter ──► @opencode/shared ──► tRPC Client
-     (SSOT)        (@opencode/db)     (tRPC)       (Zod Schema)       (Admin/Miniapp)
-```
+## 三大玩法
 
-## 架构
+论衡的顶层只有三个古风动词，对应三层截然不同的体验：
 
-```
-                ┌─────────────────────────────────────────┐
-                │            apps/admin (React)            │
-                │  StandardListPage / StandardForm / StandardDetailPage / Auth │
-                └──────────────────┬──────────────────────┘
-                                   │ tRPC Client (type-safe)
-                ┌──────────────────┴──────────────────────┐
-                │            apps/api (NestJS)             │
-                │  tRPC Router / BaseService / Guards     │
-                │  Auth / RBAC / Wechat / Payment / Upload│
-                └──────┬───────────────────┬──────────────┘
-                       │                   │
-          ┌────────────┴────────┐   ┌─────┴─────────┐
-          │  PostgreSQL (Prisma) │   │ WeChat Pay/OSS│
-          └─────────────────────┘   └───────────────┘
+### 🏛️ 朝议 · Daily Senate —— 流量层，免费旁观
 
-                ┌─────────────────────────────────────────┐
-                │         apps/miniapp (uni-app)           │
-                │  WeChat Login / User Profile / REST API │
-                └──────────────────┬──────────────────────┘
-                                   │ REST (401→refresh→retry)
+全自动的「旁观」广场。后端定时抓取全网热搜，调度三位先哲按动态状态机展开对撞辩论，渲染成一张 **「朝议法卷」** 超清社交长图，在朋友圈、小红书、即刻裂变引流。
 
-                ┌─────────────────────────────────────────┐
-                │          apps/web (Next.js SSR)          │
-                │  Login / Dashboard / Profile / REST API │
-                └──────────────────┬──────────────────────┘
-                                   │ REST + httpOnly Cookie
-```
+你不必发言，只需入座旁听——看一场千年前就该发生的思想交锋。
 
-**双身份模型**：Admin 通过 tRPC 访问（RBAC 权限），User 通过 REST 访问（仅自己的数据）。JWT `type` 字段在网关层自动隔离跨身份访问。Web 端和 Miniapp 共享 User 身份体系，Token 存储在 httpOnly Cookie（Web）或本地存储（Miniapp）。
+### 📜 问策 · Consulting Room —— 变现层，私密定制
 
-## 目录结构
+把你自己真实的困惑送进朝堂。AI 主持人识别你的意图，自动推荐最适合的 3–5 位先哲阵容，运行数轮弱限制交互，最终奉上一份极具仪式感的**「先哲结案锦囊」**。
 
-```
-opencode-scaffold/
-├── apps/
-│   ├── api/                    # NestJS 后端
-│   │   └── src/
-│   │       ├── modules/        # 业务模块 (auth, user, admin, role, payment, upload, wechat, agents)
-│   │       ├── trpc/           # tRPC 配置 + AppRouter + createCrudRouter 工厂
-│   │       ├── common/         # BaseService 基类 + BusinessException
-│   │       └── core/           # Guards, Filters, Interceptors
-│   ├── admin/                  # React + Refine 管理后台
-│   │   └── src/
-│   │       ├── modules/        # 业务页面
-│   │       └── shared/        # StandardListPage, StandardForm, StandardDetailPage, dataProvider
-│   ├── web/                    # Next.js 用户端 Web 应用（SSR）
-│   │   └── src/
-│   │       ├── app/            # App Router（login, register, dashboard, profile）
-│   │       ├── providers/      # AuthProvider
-│   │       └── lib/            # api-client, auth helpers
-│   ├── landing/                # Next.js 落地页 / 营销站（SSG 静态导出）
-│   └── miniapp/                # uni-app 微信小程序
-│       └── src/
-│           ├── pages/          # 页面
-│           └── api/            # REST API 调用
-├── infra/
-│   ├── database/               # Prisma Schema + Client + Seed + Migrations
-│   └── shared/                 # @opencode/shared (Zod Schema + 类型)
-├── .claude/                    # Claude Code skills + agents + hooks
-└── .env.example                # 环境变量模板
-```
+你的私事，配得上先哲的谋划。
 
-## 快速开始
+### 👥 聚贤 · Persona Workshop —— 资产层，UGC 增值
 
-```bash
-git clone https://github.com/your-org/opencode-scaffold.git my-project
-cd my-project
-pnpm install
-cp .env.example .env          # 编辑 .env，填写 DATABASE_URL 和 JWT_SECRET
-docker compose -f docker-compose.local.yml up -d
-cd infra/database && npx prisma migrate dev && npx prisma db seed && cd ../..
-pnpm dev
-```
+角色武器库。每位先哲都有标准化的元数据（哲学流派、MBTI 气质、专属「武器」、立场光谱）。你也能通过滑块和自定义 System Prompt 造一位新贤者，上架市场，供所有人问策调用。
 
-| 服务              | 地址                    | 测试账号                               |
-| ----------------- | ----------------------- | -------------------------------------- |
-| API (tRPC + REST) | `http://localhost:3000` | —                                      |
-| Admin             | `http://localhost:5173` | `superadmin@example.com / password123` |
-| Web               | `http://localhost:3002` | `user@example.com / password123`       |
-| Landing           | `http://localhost:3001` | —                                      |
-| Miniapp H5        | `http://localhost:8080` | `user@example.com / password123`       |
+## 核心机制
 
-## 开发命令
+### 三哲动态收束状态机（Dynamic 3-Agent FSM）
 
-### Claude Code 斜杠命令（推荐）
+朝议固定三回合，**不循环**，严格控流以压住 Token 消耗：
 
-> 使用 [Claude Code](https://claude.ai/code) CLI，AI 辅助开发
+| 回合                   | 动作                                                                                                                |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| **第 1 轮 · 引局立论** | 主持人定义核心概念后退席，三位先哲顺次发表初始立场，各隐式返回立场值 `stance ∈ [-10,10]` 与开炮意愿 `rage ∈ [1,10]` |
+| **第 2 轮 · 乱战深挖** | **不调用主持人**。后端控流器计算极化张力矩阵，依次驱动「主攻手发难 → 靶向受害者反击 → 压轴渔翁收割」三连击          |
+| **第 3 轮 · 结案收束** | 唤醒主持人执行 `conclude()`，强制 JSON 模式，吐出三人在思辨空间的二维坐标与最终判词                                 |
 
-| 命令                   | 用途                                         |
-| ---------------------- | -------------------------------------------- |
-| `/genModule <name>`    | 交互式全栈 CRUD 模块生成                     |
-| `/init-project`        | 初始化新项目（重命名包名、数据库、环境变量） |
-| `/analyze`             | 分析现有模块，识别标准化机会                 |
-| `/refactor`            | 重构为脚手架标准模式                         |
-| `/deleteModule <name>` | 删除模块（清理前后端和 Schema）              |
-| `/seed-data`           | 创建假数据                                   |
-| `/db-migrate`          | 运行迁移 + 生成 Prisma Client + Seed         |
-| `/sync`                | 同步工作区（Prisma Generate + Build Shared） |
-| `/enum-sync`           | Prisma enum → Zod enum + 前端 Select options |
+极化张力矩阵 `M(i,j) = abs(stance_i - stance_j) × rage_i`，取 `M` 绝对值最大者 `i` 为主攻手。
 
-### CLI 命令
+第 2 轮的「绕过主持人」是这套机制的灵魂——杜绝老调重弹，让冲突真正失控再被收束。
 
-| 命令              | 用途                |
-| ----------------- | ------------------- |
-| `pnpm dev`        | 启动全部服务        |
-| `pnpm type-check` | TypeScript 类型检查 |
-| `pnpm build`      | 构建整个 monorepo   |
+### 二维思辨象限拓扑
 
-## 核心抽象层
+结案阶段，后端用强 JSON Schema 约束大模型输出坐标，前端用原生 `<svg>` 渲染出一张**思辨象限拓扑图**：
 
-### BaseService — CRUD 基类
+- **横轴** —— 集权控序 ↔ 分权自由
+- **纵轴** —— 精神传承 ↔ 功利效率
 
-```typescript
-@Injectable()
-export class ProductService extends BaseService<'Product'> {
-  constructor(prisma: PrismaService) {
-    super(prisma, 'Product');
-  }
-  // 可用: list, getOne, create, update, remove, removeMany, count, exists
-  // 钩子: beforeCreate, afterCreate, beforeUpdate, afterUpdate, beforeDelete, afterDelete
-  // 行级权限: checkOwnership(userId, recordId)
-}
-```
+三位先哲化作四个象限里的节点，相互之间的「💥 零和」「⚖ 制衡」关系化作连线。一眼看穿一场辩论的结构——这是路人感知「高智商格调」的视觉锤。
 
-### createCrudRouter — tRPC 路由工厂
+> 开发红线：严禁大模型输出 ASCII 字符图。坐标与对抗关系一律由后端 JSON 给定，前端精确渲染。
 
-```typescript
-export const productRouter = createCrudRouter(
-  'Product',
-  { create: CreateProductSchema, update: UpdateProductSchema },
-  { searchFields: ['name', 'description'], protectedGetMany: true, protectedCreate: true },
-);
-// 生成: getMany (含搜索+过滤), getOne, create, update, delete, deleteMany
-```
+### 朝议法卷 · The Senate Decree
 
-### StandardListPage + StandardForm + StandardDetailPage — 声明式前端
+每一场朝议的终局，都会固化为一张**不可逆的静态长图卡片**——论衡最核心的社交裂变资产：
 
-管理端三大标准模板组件，配置即页面：
+- 锁定 `720px` 宽，仿古卷轴比例自适应高度
+- 拟物古卷白 `#f5f0e6` 底，焦炭黑 `#2a2824` 细线框
+- 顶部议题大号 Serif 居中，配 30 秒极化音频波形条
+- 中部嵌入二维思辨象限拓扑
+- 戏剧台词排版的「群贤交锋」金句对仗
+- 加框包裹的「终极判词」
+- 底部火漆印带参二维码 + 裂变文案
 
-| 组件                 | 用途          | 位置                                                   |
-| -------------------- | ------------- | ------------------------------------------------------ |
-| `StandardListPage`   | 列表页        | `apps/admin/src/shared/components/StandardListPage/`   |
-| `StandardForm`       | 创建/编辑表单 | `apps/admin/src/shared/components/StandardForm/`       |
-| `StandardDetailPage` | 详情页        | `apps/admin/src/shared/components/StandardDetailPage/` |
+用 `html2canvas` 两倍超清采样导出，根除滚动条留白。一键存图、一键分享、一键带参拉新。
 
-```tsx
-// 列表页
-<StandardListPage
-  resource="products"
-  title="商品管理"
-  columns={columns}
-  searchFields={[{ field: 'name', placeholder: '搜索商品名' }]}
-  formComponent={ProductForm}
-  permissions={{ create: 'product:create', update: 'product:update', delete: 'product:delete' }}
-/>;
+### 拟真声音管线
 
-// 表单字段定义
-const fields: FieldDefinition[] = [
-  { key: 'name', label: '商品名', type: 'input', required: true },
-  { key: 'price', label: '价格', type: 'number', min: 0, precision: 2 },
-  { key: 'categoryId', label: '分类', type: 'select', resource: 'categories' },
-  { key: 'cover', label: '封面图', type: 'upload', maxFileSize: 2 },
-  { key: 'isActive', label: '上架', type: 'switch' },
-];
+每位先哲在后台绑定 MiniMax 音色 ID 与情绪权重。问策全流程逐段切片、并发合成，再用 `fluent-ffmpeg` 拼接，并在每段发言之间强插 0.8 秒静音——模拟思考停顿的仪式感。朝议法卷顶部则附带一段 30 秒的「对立矛盾高潮摘要」音频。
 
-// 详情页
-<StandardDetailPage
-  resource="products"
-  title="商品详情"
-  fields={detailFields}
-  headerMode="simple"
-  tabs={[
-    { key: 'basic', label: '基本信息' },
-    { key: 'logs', label: '操作日志' },
-  ]}
-  actions={[{ key: 'edit', label: '编辑', onClick: handleEdit }]}
-/>;
-```
+## 视觉语言 · 数字古典主义
 
-## genModule 代码生成器
+论衡拒绝低俗网感，对齐「数字招魂」与「深夜书房」的古典庄重：
 
-```bash
-/genModule product
-```
+| 角色       | 色值      | 用途           |
+| ---------- | --------- | -------------- |
+| 拟物古卷白 | `#f5f0e6` | 卡片底色       |
+| 暖灰背景   | `#e8e2d4` | 页面背景       |
+| 焦炭黑     | `#2a2824` | 正文与细线框   |
+| 元老金     | `#b8963a` | 高亮与先哲点缀 |
+| 冲突警示红 | `#8a3c3c` | 对抗张力标记   |
 
-**生成目标：**
-
-| 目标            | 路径                                                        |
-| --------------- | ----------------------------------------------------------- |
-| Prisma Model    | `infra/database/prisma/schema.prisma`（追加）               |
-| tRPC Router     | `apps/api/src/modules/product/trpc/product.router.ts`       |
-| NestJS Module   | `apps/api/src/modules/product/module.ts`                    |
-| List Page       | `apps/admin/src/modules/product/pages/ProductListPage.tsx`  |
-| Form Component  | `apps/admin/src/modules/product/components/ProductForm.tsx` |
-| Miniapp API     | `apps/miniapp/src/api/product.ts`                           |
-| App Router 注册 | `apps/api/src/trpc/app.router.ts`（追加）                   |
-| Refine Resource | `apps/admin/src/App.tsx`（追加）                            |
-
-**智能字段推断：**
-
-| 字段模式          | 推断的 UI 组件                    |
-| ----------------- | --------------------------------- |
-| `price`, `amount` | InputNumber + ¥ formatter + min:0 |
-| `email`           | email 验证规则                    |
-| `phone`           | 手机号正则验证                    |
-| `avatar`, `cover` | OSSUpload 图片上传                |
-| `parentId`        | TreeSelect（自动检测树形结构）    |
-| `*Id`（外键）     | Select 下拉（自动关联 resource）  |
-| `is*`             | Switch 开关                       |
-| `*At`（日期）     | DatePicker + showTime             |
-
-## 编码规范
-
-| 规范        | 示例                                    |
-| ----------- | --------------------------------------- |
-| 文件命名    | `feature-name.service.ts`（kebab-case） |
-| TS 变量     | `camelCase`                             |
-| 数据库字段  | `snake_case`（via `@@map`）             |
-| Prisma 模型 | `PascalCase`                            |
-| tRPC 路由   | 与 Prisma 模型名对齐                    |
-| Zod Schema  | `CreateXxxSchema` / `UpdateXxxSchema`   |
-
-**SSOT 原则：** `schema.prisma` 是唯一模型源，`infra/shared` 是唯一验证源，所有端共享 `@opencode/shared` 类型。
-
-**数据隔离：** Admin 可访问所有数据，User 只能访问自己的数据（`where: { userId: user.id }`），`createdById` / `updatedById` 从 JWT 自动注入。
-
-## Schema 变更流程
+## 增长与经济闭环
 
 ```
-修改 schema.prisma → /db-migrate → /sync → git commit & push → CI 自动 migrate deploy
+        朝议法卷裂变（免费）               体力值耗尽
+用户 ──────────────────► 公域引流 ──► 注册（赠体力）──► 问策（消耗体力）
+                                                          │
+                                          ┌───────────────┤
+                                          ▼               ▼
+                                   分享带参回满体力    订阅买断（周卡 / 月卡）
 ```
 
-## 部署
+- **朝议** 是流量钩子：免费看、自带裂变，把人引来。
+- **问策** 是变现核心：体力值（Energy）消耗制 + 周卡/月卡买断订阅，私密高价值卡口。
+- **聚贤** 是资产飞轮：用户造的贤者越好，问策体验越深，留存与传播越强。
 
-```bash
-cp .env.example .env.prod
-# 编辑 .env.prod 填写生产配置
-docker compose -f docker-compose.prod.yml up -d
-```
+## 体验
 
-容器：`api`（NestJS）、`admin`（Nginx + 静态文件）、`web`（Next.js SSR）、`landing`（Nginx + 静态文件）、`postgres`、`redis`
+<!-- 替换为真实站点地址 -->
 
-CI/CD：push 到 `main` 时自动执行 build + type-check + `prisma migrate deploy`（需配置 `PROD_DATABASE_URL` GitHub Secret）
+| 入口     | 地址            |
+| -------- | --------------- |
+| Web 应用 | _待发布_        |
+| 朝议画廊 | `/gallery`      |
+| 私密问策 | `/consultation` |
 
-## 环境变量
+---
 
-| 变量                     | 必需 | 默认值           | 说明                       |
-| ------------------------ | ---- | ---------------- | -------------------------- |
-| `DATABASE_URL`           | Yes  | —                | PostgreSQL 连接字符串      |
-| `JWT_SECRET`             | Yes  | —                | JWT 签名密钥（>=32 chars） |
-| `JWT_EXPIRES_IN`         | No   | `7d`             | Access Token 过期时间      |
-| `JWT_REFRESH_EXPIRES_IN` | No   | `30d`            | Refresh Token 过期时间     |
-| `CORS_ORIGIN`            | No   | `localhost:5173` | 允许的前端域名             |
-| `PORT`                   | No   | `3000`           | API 服务端口               |
-| `WX_APP_ID`              | No   | —                | 微信小程序 AppID           |
-| `WX_APP_SECRET`          | No   | —                | 微信小程序 AppSecret       |
-| `WX_PAY_MCH_ID`          | No   | —                | 微信支付商户号             |
-
-完整配置见 `.env.example`。
-
-## 内置模块
-
-| 模块       | 后端                                          | 前端                          | 说明                  |
-| ---------- | --------------------------------------------- | ----------------------------- | --------------------- |
-| auth       | auth.service + auth.router                    | LoginPage + SessionExpired    | 双身份认证 + JWT      |
-| user       | user.service + user.router                    | UserListPage + UserDetail     | 小程序用户 CRUD       |
-| admin      | admin.service + admin.router                  | AdminListPage + AdminDetail   | 管理员 CRUD + RBAC    |
-| role       | role.service + role.router                    | RoleListPage + RoleDetail     | 角色管理 + 权限分配   |
-| permission | permission.service + permission.router        | —                             | 权限注册中心          |
-| upload     | upload.service + upload.router                | OSSUpload 组件                | 多策略文件存储        |
-| payment    | payment.service + payment.router              | —                             | 微信支付 JSAPI + 退款 |
-| wechat     | wechat.service                                | —                             | 微信登录 + 小程序 API |
-| agents     | agents.service + dify.service + agents.router | AgentListPage + AgentChatPage | Dify AI Agent 对话    |
-
-## 许可证
-
-[MIT](LICENSE)
+<p align="center">
+  <strong>🏛️ 朝议已毕 · 群贤退席 · 识见留存</strong><br>
+  <sub>论衡 · Dialectica — 把庸常的纠结，升格为一场千载思想局。</sub>
+</p>
