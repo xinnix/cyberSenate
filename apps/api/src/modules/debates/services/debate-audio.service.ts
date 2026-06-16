@@ -39,6 +39,35 @@ export class DebateAudioService {
     private fileStorage: FileStorageService,
   ) {}
 
+  // ── URL 规范化 ──────────────────────────────────────────────
+  // 入库只存相对路径（/debate-audio/xxx.mp3），与环境解耦；
+  // 出口再按当前环境拼成完整 URL，避免把 host 写死进数据库。
+
+  /** 取 URL 的 pathname 作为稳定的相对引用（兼容已带 host 的存量数据） */
+  private pathnameOf(url: string): string {
+    if (/^https?:\/\//i.test(url)) {
+      try {
+        return new URL(url).pathname;
+      } catch {
+        return url;
+      }
+    }
+    return url.startsWith('/') ? url : `/${url}`;
+  }
+
+  /** 出口：拼上面向浏览器的 SERVER_URL（旧 localhost 数据也被归一化） */
+  private toPublicUrl(url: string | null | undefined): string | null {
+    if (!url) return null;
+    const base = (process.env.SERVER_URL || 'http://localhost:3000').replace(/\/$/, '');
+    return `${base}${this.pathnameOf(url)}`;
+  }
+
+  /** 合并片段下载用：拼容器内回环地址（后台任务 fetch 自己的静态服务） */
+  private toInternalUrl(url: string): string {
+    const base = `http://localhost:${process.env.PORT || 3000}`.replace(/\/$/, '');
+    return `${base}${this.pathnameOf(url)}`;
+  }
+
   /**
    * 为整场辩论生成全部音频（后台调用）
    */
@@ -216,10 +245,10 @@ export class DebateAudioService {
 
     return {
       audioStatus: debate?.audioStatus,
-      mergedAudioUrl: debate?.mergedAudioUrl,
+      mergedAudioUrl: this.toPublicUrl(debate?.mergedAudioUrl),
       mergedAudioDuration: debate?.mergedAudioDuration,
       chapterMetadata: debate?.chapterMetadata,
-      tracks,
+      tracks: tracks.map((t) => ({ ...t, audioUrl: this.toPublicUrl(t.audioUrl) })),
     };
   }
 
@@ -363,7 +392,7 @@ export class DebateAudioService {
         if (!track.audioUrl) continue;
 
         const tmpFile = path.join(tmpDir, `segment_${String(i).padStart(3, '0')}.mp3`);
-        await this.downloadToFile(track.audioUrl, tmpFile);
+        await this.downloadToFile(this.toInternalUrl(track.audioUrl), tmpFile);
         tmpFiles.push(tmpFile);
       }
 
@@ -395,11 +424,11 @@ export class DebateAudioService {
       };
       const result = await this.fileStorage.upload(file, 'debate-audio');
 
-      // 更新 Debate 记录
+      // 更新 Debate 记录（入库相对路径，出口再拼完整 URL）
       await this.prisma.debate.update({
         where: { id: debateId },
         data: {
-          mergedAudioUrl: result.url,
+          mergedAudioUrl: this.pathnameOf(result.url),
           mergedAudioDuration: totalDuration,
           chapterMetadata: chapters as any,
         },
@@ -480,7 +509,7 @@ export class DebateAudioService {
       await this.prisma.debateAudio.update({
         where: { id: track.id },
         data: {
-          audioUrl: result.url,
+          audioUrl: this.pathnameOf(result.url),
           audioDuration: duration,
           status: 'READY',
         },

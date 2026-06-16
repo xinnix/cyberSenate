@@ -227,8 +227,23 @@ class LocalStorageStrategy implements IFileStorage {
   }
 
   async getSignedUrl(filePath: string): Promise<string> {
-    // 本地文件直接返回路径
-    return `/${filePath}`;
+    // 本地文件即公开静态资源：取 pathname 去掉任意 host，
+    // 再按 SERVER_URL 拼成面向客户端的完整 URL。
+    // 兼容存量带 localhost 的 URL，修复下载端点输出坏地址的问题。
+    let rel: string;
+    if (/^https?:\/\//i.test(filePath)) {
+      try {
+        rel = new URL(filePath).pathname;
+      } catch {
+        rel = filePath;
+      }
+    } else {
+      rel = filePath.startsWith('/') ? filePath : `/${filePath}`;
+    }
+    const base = (
+      this.config?.get<string>('SERVER_URL', 'http://localhost:3000') || 'http://localhost:3000'
+    ).replace(/\/$/, '');
+    return `${base}${rel}`;
   }
 
   async getUploadCredentials(dirPath: string): Promise<UploadCredentials> {
