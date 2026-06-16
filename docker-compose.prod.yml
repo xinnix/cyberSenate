@@ -25,6 +25,8 @@ services:
       # WX_PAY_PRIVATE_KEY_PATH=/app/certs/apiclient_key.pem
       # WX_PAY_PUBLIC_KEY_PATH=/app/certs/wechatpay_public_key.pem
       - ./certs:/app/certs:ro
+      # 本地上传文件持久化（FILE_STORAGE_PROVIDER=local 时必需，否则容器重建会丢失已上传文件）
+      - ./uploads:/app/uploads
     restart: unless-stopped
     networks:
       - app-network
