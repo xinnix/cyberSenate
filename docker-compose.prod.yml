@@ -30,6 +30,7 @@ services:
     restart: unless-stopped
     networks:
       - app-network
+      - 1panel-network
     logging:
       driver: 'json-file'
       options:
@@ -94,3 +95,5 @@ services:
 networks:
   app-network:
     driver: bridge
+  1panel-network:
+    external: true #
